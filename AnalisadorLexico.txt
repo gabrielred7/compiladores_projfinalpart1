@@ -1,0 +1,40 @@
+Escreva Python um analisador léxico para uma linguagem de expressões aritméticas com os seguintes elementos léxicos:
+
+- Números em hexadecimal (0xABCDEF0123456789)
+- Números em decimal
+- Operadores: + - * / % ^
+- Espaços em branco (espaço, tab, quebras de linha, etc)
+- Comentário de linha: //
+- Comentário de bloco: /* */
+
+O seu programa deve receber na entrada padrão um programa com expressões aritméticas e comentários. Na saída padrão, imprima para cada token, o tipo do token e o seu valor; um por linha. Por exemplo, para 10*5+3 produza
+
+    TokNumber 10
+    TokOp OpMult
+    TokNumber 5
+    TokOp OpSum
+    TokNumber 3
+    TokEOF
+
+O coração do analizador léxico deve conter um método next que retorna o próximo token. Leia a entrada caractere por caractere. 
+
+Cada token é um par com o tipo do token e o seu valor. Use strings ("TokNumber", "TokOperator", etc).
+
+O valor associado a um token de número deve ser um número inteiro (não string).
+
+Para tokens de operadores crie um tipo só (TokOp) e diferencie-os pelo valor associado.
+
+Espaços e comentários devem ser ignorados, sem produzir token.
+
+No fim da entrada, retorne um token especial para marcar o fim do arquivo: TokEOF.
+
+Atenção:
+--------
+
+Cuidado com 0x vs 0 (início de hexadecimal vs zero à esquerda decimal)
+
+Cuidado com // vs / (início de comentário vs divisão)
+
+Cuidado com /**/10/**/ (programas com mais de um comentário de bloco)
+
+Não esqueça de produzir um erro para os comentários em que falta o "*/".
