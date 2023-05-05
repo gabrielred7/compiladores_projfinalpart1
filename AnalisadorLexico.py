@@ -2,11 +2,11 @@
 Trabalho de Compiladores - Projeto Pt1: Analisador Lexico
 Nome: Gabriel Almeida Mendes - DRE: 117204959
 """
-
 import re
 import sys
 """
-OBS: Professor eu nao conseguir fazer esse programa usando expressoes regulares, forma que acredito que voce queria, pq nunca fui bom com manipulação de strings
+OBS: Professor não conseguimos fazer esse programa usando expressoes regulares, forma que acredito que voce queria, entao usamosfuncoes como o int() para converter para hexadecimal, por exemplo. Somado a isso estamos com dificuldades de fazer isso funcionar, estavamos seguindo um exemplo do livro do dragão entao acredito que esteja certo, mas não consigo obter uma saida clara
+
 """
 
 #Classe usada para representar cada token produzido pelo analisador léxico. 
@@ -31,7 +31,7 @@ class Lexer:
         self.char_atual = self.entrada[self.posicao] if self.posicao < len(self.entrada) else None
 
     # Ignora espaços em branco (como space, tab e etc)
-    def pular_espacoBranco(self):
+    def pular_espaco_branco(self):
         while self.char_atual is not None and self.char_atual.isspace():
             self.avancar()
     
@@ -56,19 +56,19 @@ class Lexer:
         return self.entrada[self.verificar_posicao] if self.verificar_posicao < len(self.entrada) else None
 
     def decimal(self):
-        number = ''
+        numero = ''
         while self.char_atual is not None and self.char_atual.isdigit():
-            number += self.char_atual
+            numero += self.char_atual
             self.avancar()
-        return int(number)
+        return int(numero)
 
     def hexadecimal(self):
-        number = ''
+        numero = ''
         while self.char_atual is not None and self.char_atual.isalnum():
-            number += self.char_atual
+            numero += self.char_atual
             self.avancar()
-        if number.startswith('0x'):
-            return int(number[:2], 16)
+        if numero.startswith('0x'):
+            return int(numero[:2], 16)
         else:
             self.error()
 
