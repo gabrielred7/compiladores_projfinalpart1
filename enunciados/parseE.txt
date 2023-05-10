@@ -1,0 +1,11 @@
+def parseE():
+    if ver(TokNum):
+        n = consome(TokNum) # -> função auxiliar
+        return ExpNum(n)
+    elif ver(Tok_Plus):
+        consome(Tok_Plus)
+        a = parseE()
+        b = parseE()
+        return ExpBin(+, a, b)
+    else:
+        erro()

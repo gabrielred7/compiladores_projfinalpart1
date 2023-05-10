@@ -1,19 +1,14 @@
 """
 Trabalho de Compiladores - Projeto Pt1: Analisador Lexico
 Nome: Gabriel Almeida Mendes - DRE: 117204959
+      Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
-import re
 import sys
+import Token
 """
 OBS: Professor não conseguimos fazer esse programa usando expressoes regulares, forma que acredito que voce queria, entao usamosfuncoes como o int() para converter para hexadecimal, por exemplo. Somado a isso estamos com dificuldades de fazer isso funcionar, estavamos seguindo um exemplo do livro do dragão entao acredito que esteja certo, mas não consigo obter uma saida clara
 
 """
-
-#Classe usada para representar cada token produzido pelo analisador léxico. 
-class Token:
-    def __init__(self, ttype, value):
-        self.tipo_token = ttype
-        self.valor_token = value
 
 #Classe que implementa o analisador léxico. 
 class Lexer:
@@ -125,17 +120,3 @@ class Lexer:
                 self.error()
 
         return Token('TokEOF', None)
-
-
-def main():
-    texto_entrada = sys.stdin.read()
-    lexer = Lexer(texto_entrada)
-    while True:
-        token = lexer.next()
-        if token.tipo_token == 'TokEOF':
-            break #Fim dos arquivos
-        print(token.tipo_token, token.valor_token)
-
-
-if __name__ == '__main__':
-    main()
