@@ -1,10 +1,10 @@
 """
-Trabalho de Compiladores - Projeto Pt1: Analisador Lexico
-Nome: Gabriel Almeida Mendes - DRE: 117204959
-      Marcus Vinicius Torres de Oliveira - DRE: 118142223
+Nomes: Gabriel Almeida Mendes - DRE: 117204959
+       Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
-import sys
+
 import Token
+
 """
 OBS: Professor não conseguimos fazer esse programa usando expressoes regulares, forma que acredito que voce queria, entao usamosfuncoes como o int() para converter para hexadecimal, por exemplo. Somado a isso estamos com dificuldades de fazer isso funcionar, estavamos seguindo um exemplo do livro do dragão entao acredito que esteja certo, mas não consigo obter uma saida clara
 
