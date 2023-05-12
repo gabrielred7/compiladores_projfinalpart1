@@ -8,6 +8,7 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 
 import sys
 import Lexer
+import Parser
 
 def main():
     texto_entrada = sys.stdin.read()
@@ -17,7 +18,14 @@ def main():
         if token.tipo_token == 'TokEOF':
             break #Fim dos arquivos
         print(token.tipo_token, token.valor_token)
-
+    parser = Parser(lexer)
+    resultado = parser.parseExpression()
+    print("Resultado:", resultado)
 
 if __name__ == '__main__':
     main()
+
+"""
+Para utilizar a classe Parser, basta instanciá-la com um objeto da classe Lexer.
+Em seguida, chamar o método parseExpression() da classe Parser passando a entrada como argumento.
+"""

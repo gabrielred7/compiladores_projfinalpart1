@@ -1,4 +1,4 @@
-Escreva Python um analisador léxico para uma linguagem de expressões aritméticas com os seguintes elementos léxicos:
+Escreva em Python um analisador léxico para uma linguagem de expressões aritméticas com os seguintes elementos léxicos:
 
 - Números em hexadecimal (0xABCDEF0123456789)
 - Números em decimal

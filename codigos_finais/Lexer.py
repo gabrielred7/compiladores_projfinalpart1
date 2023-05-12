@@ -3,7 +3,7 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
 
-import Token
+from Token import Token
 
 """
 OBS: Professor não conseguimos fazer esse programa usando expressoes regulares, forma que acredito que voce queria, entao usamosfuncoes como o int() para converter para hexadecimal, por exemplo. Somado a isso estamos com dificuldades de fazer isso funcionar, estavamos seguindo um exemplo do livro do dragão entao acredito que esteja certo, mas não consigo obter uma saida clara
@@ -59,11 +59,11 @@ class Lexer:
 
     def hexadecimal(self):
         numero = ''
-        while self.char_atual is not None and self.char_atual.isalnum():
+        while self.char_atual is not None and (self.char_atual.isdigit() or self.char_atual.isalpha()):
             numero += self.char_atual
             self.avancar()
         if numero.startswith('0x'):
-            return int(numero[:2], 16)
+            return int(numero, 16)
         else:
             self.error()
 
