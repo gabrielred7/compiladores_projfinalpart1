@@ -21,6 +21,8 @@ TT_PLUS     = 'TokOp OpSum'
 TT_MINUS    = 'TokOp OpSub'
 TT_MUL      = 'TokOp OpMul'
 TT_DIV      = 'TokOp OpDiv'
+TT_MOD      = 'TokOp OpMod'
+TT_EXP      = 'TokOp OpExp'
 TT_LPAREN   = 'LPAREN'
 TT_RPAREN   = 'RPAREN'
 
@@ -85,19 +87,18 @@ class Lexer:
 
     def operadores(self):
         op = self.char_atual
-        self.avancar()
         if op == '+':
-            return Token.Token('TokOp', 'OpSum')
+            return Token.Token(TT_PLUS, str(op))
         elif op == '-':
-            return Token.Token('TokOp', 'OpSub')
+            return Token.Token(TT_MINUS, str(op))
         elif op == '*':
-            return Token.Token('TokOp', 'OpMult')
+            return Token.Token(TT_MUL, str(op))
         elif op == '/':
-            return Token.Token('TokOp', 'OpDiv')
+            return Token.Token(TT_DIV, str(op))
         elif op == '%':
-            return Token.Token('TokOp', 'OpMod')
+            return Token.Token(TT_MOD, str(op))
         elif op == '^':
-            return Token.Token('TokOp', 'OpExp')
+            return Token.Token(TT_EXP, str(op))
         else:
             self.error()
 
@@ -131,7 +132,8 @@ class Lexer:
                     return Token.Token('TokNumber', 0)
                 
             elif self.char_atual in ('+', '-', '*', '/', '%', '^'):
-                return self.operadores()
+                tokens.append(self.operadores())
+                self.avancar()
             
             else:
                 self.error()
