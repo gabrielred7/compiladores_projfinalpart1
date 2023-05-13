@@ -6,7 +6,7 @@ import Posicao
 
 class Erro:
     def __init__(self, linha, erro_nome, detalhes):
-        self.linha = Posicao.Posicao.ln
+        self.linha = linha
         self.erro_nome = erro_nome
         self.detalhes = detalhes
 
@@ -16,6 +16,6 @@ class Erro:
         return resultado
     
 class CharIlegalErro(Erro):
-    def __init__(self, linha, erro_nome, detalhes):
-        super().__init__(linha, erro_nome, "Erro: Caracter ilegal", detalhes)    
+    def __init__(self, linha, detalhes):
+        super().__init__(linha, "Erro: Caracter ilegal", detalhes)    
         

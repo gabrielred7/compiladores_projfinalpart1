@@ -25,6 +25,9 @@ TT_MOD      = 'TokOp OpMod'
 TT_EXP      = 'TokOp OpExp'
 TT_LPAREN   = 'LPAREN'
 TT_RPAREN   = 'RPAREN'
+TT_COM1     = 'TokComment1'
+TT_COM2     = 'TokComment2'
+TT_ERRO     = 'TokError'
 
 
 #Classe que implementa o analisador léxico. 
@@ -36,7 +39,11 @@ class Lexer:
         self.avancar()
 
     def error(self):
-        raise Exception('Caractere inválido')
+        #raise Exception('Caractere inválido')
+        pos_erro = self.posicao.copia()
+        char = self.char_atual
+        self.avancar()
+        return [TT_ERRO], Erro.CharIlegalErro(pos_erro, "'" + char + "'")
 
     # O método avancar atribui a entrada ao char atual
     def avancar(self):
@@ -55,13 +62,15 @@ class Lexer:
         self.avancar()
     
     def pular_comentario_bloco(self):
-        while self.char_atual is not None:
-            if self.char_atual == '*' and self.verificar() == '/':
+        while self.char_atual is not None and self.char_atual != '*':
+            #if self.char_atual == '*' and self.verificar() == '/':
                 self.avancar()
-                self.avancar()
-                break
-            else:
-                self.avancar()
+            #    self.avancar()
+            #    break
+            #else:
+            #    self.avancar()
+        #return self.char_atual
+        self.avancar()
 
     #Auxilia na verificação dos caracteres de comentarios
     def verificar(self):
@@ -82,8 +91,7 @@ class Lexer:
             self.avancar()
         if numero.startswith('0x'):
             return int(numero[:2], 16)
-        else:
-            self.error()
+
 
     def operadores(self):
         op = self.char_atual
@@ -99,8 +107,6 @@ class Lexer:
             return Token.Token(TT_MOD, str(op))
         elif op == '^':
             return Token.Token(TT_EXP, str(op))
-        else:
-            self.error()
 
     # Lê o caractere atual e retorna o proximo token
     def next(self):
@@ -111,14 +117,25 @@ class Lexer:
                 self.avancar()
 
             elif self.char_atual == '/':
-                if self.verificar() == '/':
+                self.avancar()
+                #if self.verificar() == '/':
+                if self.char_atual == '/':
+                    tokens.append(Token.Token(TT_COM1, 'TokComment1'))
                     self.pular_comentario_linha()
                     self.avancar()
-                elif self.verificar() == '*':
-                    self.avancar()
-                    self.avancar()
+                #elif self.verificar() == '*':
+                elif self.char_atual == '*':
+                    #self.avancar()
+                    #self.avancar()
+                    #self.char_atual = self.pular_comentario_bloco()
                     self.pular_comentario_bloco()
-                    self.avancar()
+                    #self.avancar()
+                    if self.char_atual == '*':
+                        self.avancar()
+                        #print("Qual é o char atual = ", str(self.char_atual))
+                        if self.char_atual == '/':
+                            tokens.append(Token.Token(TT_COM2, 'TokComment2'))
+                            self.avancar()
 
             elif self.char_atual in DIGITOS:
                 tokens.append(self.decimal())
@@ -136,6 +153,10 @@ class Lexer:
                 self.avancar()
             
             else:
-                self.error()
+                pos_erro = self.posicao.copia()
+                char = self.char_atual
+                self.avancar()
+                return [TT_ERRO], Erro.CharIlegalErro(pos_erro, "'" + char + "'")
+
 
         return tokens, None

@@ -8,12 +8,13 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 
 import sys
 import Lexer
+import Erro
 
 def run(texto):
     lexer = Lexer.Lexer(texto)
     tokens, erros = lexer.next()
 
-    return tokens
+    return tokens, erros
 
 def main():
     #texto_entrada = sys.stdin.read()
@@ -21,10 +22,11 @@ def main():
     
     while True:
         texto = input()
-        resultado = run(texto)
+        resultado, erros = run(texto)
         #if token.tipo_token == 'TokEOF':
         #    break #Fim dos arquivos
         #print(token.tipo_token, token.valor_token)
+        if erros: print(erros.as_string())
         print(resultado)
 
 #if __name__ == '__main__':
