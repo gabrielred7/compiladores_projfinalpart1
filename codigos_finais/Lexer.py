@@ -60,16 +60,15 @@ class Lexer:
         while self.char_atual is not None and self.char_atual != '\n':
             self.avancar()
         self.avancar()
+        return Token.Token(TT_COM1, 'TokComment1')
     
     def pular_comentario_bloco(self):
-        while self.char_atual is not None and self.char_atual != '*':
-            #if self.char_atual == '*' and self.verificar() == '/':
+        while self.char_atual is not None and self.char_atual !='\n':
                 self.avancar()
-            #    self.avancar()
-            #    break
-            #else:
-            #    self.avancar()
-        #return self.char_atual
+                if self.char_atual == '*':
+                    self.avancar()
+                    if self.char_atual == '/':
+                        return Token.Token(TT_COM2, 'TokComment2')
         self.avancar()
 
     #Auxilia na verificação dos caracteres de comentarios
@@ -120,22 +119,21 @@ class Lexer:
                 self.avancar()
                 #if self.verificar() == '/':
                 if self.char_atual == '/':
-                    tokens.append(Token.Token(TT_COM1, 'TokComment1'))
-                    self.pular_comentario_linha()
+                    tokens.append(self.pular_comentario_linha())
                     self.avancar()
                 #elif self.verificar() == '*':
                 elif self.char_atual == '*':
                     #self.avancar()
                     #self.avancar()
                     #self.char_atual = self.pular_comentario_bloco()
-                    self.pular_comentario_bloco()
-                    #self.avancar()
-                    if self.char_atual == '*':
-                        self.avancar()
+                    tokens.append(self.pular_comentario_bloco())
+                    self.avancar()
+                    #if self.char_atual == '*':
+                    #    self.avancar()
                         #print("Qual é o char atual = ", str(self.char_atual))
-                        if self.char_atual == '/':
-                            tokens.append(Token.Token(TT_COM2, 'TokComment2'))
-                            self.avancar()
+                    #    if self.char_atual == '/':
+                    #        tokens.append(Token.Token(TT_COM2, 'TokComment2'))
+                    #        self.avancar()
 
             elif self.char_atual in DIGITOS:
                 tokens.append(self.decimal())
