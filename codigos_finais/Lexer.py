@@ -13,6 +13,7 @@ OBS: Professor não conseguimos fazer esse programa usando expressoes regulares,
 
 #CONSTANTES
 DIGITOS = '0123456789'
+HEXA    = '0123456789ABCDEF'
 
 #TOKENS
 
@@ -28,6 +29,7 @@ TT_RPAREN   = 'RPAREN'
 TT_COM1     = 'TokComment1'
 TT_COM2     = 'TokComment2'
 TT_ERRO     = 'TokError'
+TT_HEXA     = 'TokHexadecimal'
 
 
 #Classe que implementa o analisador léxico. 
@@ -85,11 +87,12 @@ class Lexer:
 
     def hexadecimal(self):
         numero = ''
-        while self.char_atual is not None and self.char_atual.isalnum():
+        #while self.char_atual is not None and self.char_atual.isalnum():
+        while self.char_atual is not None and self.char_atual in HEXA:
             numero += self.char_atual
             self.avancar()
-        if numero.startswith('0x'):
-            return int(numero[:2], 16)
+        #if numero.startswith('0x'):
+        return Token.Token(TT_HEXA, str(numero))
 
 
     def operadores(self):
@@ -134,17 +137,19 @@ class Lexer:
                     #    if self.char_atual == '/':
                     #        tokens.append(Token.Token(TT_COM2, 'TokComment2'))
                     #        self.avancar()
-
-            elif self.char_atual in DIGITOS:
-                tokens.append(self.decimal())
-            
             elif self.char_atual == '0':
+                numero = self.char_atual
                 self.avancar()
                 if self.char_atual == 'x':
                     self.avancar()
-                    return Token.Token('TokNumber', self.hexadecimal())
+                    if self.char_atual in HEXA:
+                        tokens.append(self.hexadecimal())
                 else:
-                    return Token.Token('TokNumber', 0)
+                    tokens.append(Token.Token(TT_INT, int(numero)))
+
+
+            elif self.char_atual in DIGITOS:
+                tokens.append(self.decimal())
                 
             elif self.char_atual in ('+', '-', '*', '/', '%', '^'):
                 tokens.append(self.operadores())
