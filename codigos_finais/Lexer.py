@@ -30,6 +30,7 @@ TT_COM1     = 'TokComment1'
 TT_COM2     = 'TokComment2'
 TT_ERRO     = 'TokError'
 TT_HEXA     = 'TokHexadecimal'
+TT_EOF      = 'EOF'
 
 
 #Classe que implementa o analisador léxico. 
@@ -39,13 +40,6 @@ class Lexer:
         self.posicao = Posicao.Posicao(-1, 0, -1, text)
         self.char_atual = None
         self.avancar()
-
-    def error(self):
-        #raise Exception('Caractere inválido')
-        pos_erro = self.posicao.copia()
-        char = self.char_atual
-        self.avancar()
-        return [TT_ERRO], Erro.CharIlegalErro(pos_erro, "'" + char + "'")
 
     # O método avancar atribui a entrada ao char atual
     def avancar(self):
@@ -62,7 +56,7 @@ class Lexer:
         while self.char_atual is not None and self.char_atual != '\n':
             self.avancar()
         self.avancar()
-        return Token.Token(TT_COM1, 'TokComment1')
+        return Token.Token(TT_COM1, pos_ini=self.posicao)
     
     def pular_comentario_bloco(self):
         while self.char_atual is not None and self.char_atual !='\n':
@@ -70,45 +64,47 @@ class Lexer:
                 if self.char_atual == '*':
                     self.avancar()
                     if self.char_atual == '/':
-                        return Token.Token(TT_COM2, 'TokComment2')
+                        return Token.Token(TT_COM2, pos_ini=self.posicao)
         self.avancar()
-
-    #Auxilia na verificação dos caracteres de comentarios
-    def verificar(self):
-        self.verificar_posicao = self.posicao + 1
-        return self.entrada[self.verificar_posicao] if self.verificar_posicao < len(self.entrada) else None
 
     def decimal(self):
         numero = ''
+        pos_ini = self.posicao.copia()
+
         while self.char_atual is not None and self.char_atual in DIGITOS:
             numero += self.char_atual
             self.avancar()
-        return Token.Token(TT_INT, int(numero))
+        return Token.Token(TT_INT, int(numero),pos_ini, self.posicao)
 
     def hexadecimal(self):
         numero = ''
+        pos_ini = self.posicao.copia()
         #while self.char_atual is not None and self.char_atual.isalnum():
         while self.char_atual is not None and self.char_atual in HEXA:
             numero += self.char_atual
             self.avancar()
         #if numero.startswith('0x'):
-        return Token.Token(TT_HEXA, str(numero))
+        return Token.Token(TT_HEXA, str(numero),pos_ini, self.posicao)
 
 
     def operadores(self):
         op = self.char_atual
         if op == '+':
-            return Token.Token(TT_PLUS, str(op))
+            return Token.Token(TT_PLUS, pos_ini=self.posicao)
         elif op == '-':
-            return Token.Token(TT_MINUS, str(op))
+            return Token.Token(TT_MINUS, pos_ini=self.posicao)
         elif op == '*':
-            return Token.Token(TT_MUL, str(op))
+            return Token.Token(TT_MUL, pos_ini=self.posicao)
         elif op == '/':
-            return Token.Token(TT_DIV, str(op))
+            return Token.Token(TT_DIV, pos_ini=self.posicao)
         elif op == '%':
-            return Token.Token(TT_MOD, str(op))
+            return Token.Token(TT_MOD, pos_ini=self.posicao)
         elif op == '^':
-            return Token.Token(TT_EXP, str(op))
+            return Token.Token(TT_EXP, pos_ini=self.posicao)
+        elif op == '(':
+            return Token.Token(TT_LPAREN, pos_ini=self.posicao)
+        elif op == ')':
+            return Token.Token(TT_RPAREN, pos_ini=self.posicao)
 
     # Lê o caractere atual e retorna o proximo token
     def next(self):
@@ -126,17 +122,8 @@ class Lexer:
                     self.avancar()
                 #elif self.verificar() == '*':
                 elif self.char_atual == '*':
-                    #self.avancar()
-                    #self.avancar()
-                    #self.char_atual = self.pular_comentario_bloco()
                     tokens.append(self.pular_comentario_bloco())
                     self.avancar()
-                    #if self.char_atual == '*':
-                    #    self.avancar()
-                        #print("Qual é o char atual = ", str(self.char_atual))
-                    #    if self.char_atual == '/':
-                    #        tokens.append(Token.Token(TT_COM2, 'TokComment2'))
-                    #        self.avancar()
             elif self.char_atual == '0':
                 numero = self.char_atual
                 self.avancar()
@@ -145,13 +132,13 @@ class Lexer:
                     if self.char_atual in HEXA:
                         tokens.append(self.hexadecimal())
                 else:
-                    tokens.append(Token.Token(TT_INT, int(numero)))
+                    tokens.append(Token.Token(TT_INT, pos_ini=self.posicao))
 
 
             elif self.char_atual in DIGITOS:
                 tokens.append(self.decimal())
                 
-            elif self.char_atual in ('+', '-', '*', '/', '%', '^'):
+            elif self.char_atual in ('+', '-', '*', '/', '%', '^', '(', ')'):
                 tokens.append(self.operadores())
                 self.avancar()
             
@@ -159,7 +146,7 @@ class Lexer:
                 pos_erro = self.posicao.copia()
                 char = self.char_atual
                 self.avancar()
-                return [TT_ERRO], Erro.CharIlegalErro(pos_erro, "'" + char + "'")
+                return [TT_ERRO], Erro.CharIlegalErro(pos_erro, self.posicao,"'" + char + "'")
 
-
+        tokens.append(Token.Token(TT_EOF, pos_ini=self.posicao))
         return tokens, None
