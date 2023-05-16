@@ -3,12 +3,10 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
 ##Alerta! Estamos fazendo implementando a tarefa opcional
-
 import Lexer
 import ParserResultado
 import NumeroDeNos
 import Erro
-import Token
 
 #Classe que implementa o parser
 class Parser:
@@ -33,7 +31,6 @@ class Parser:
             ))
         return res
     
-
     #Métodos da gramática: (Ainda incompletos)
     def fator(self):
         res = ParserResultado.ParserResultado()
@@ -63,23 +60,18 @@ class Parser:
 
     def termo(self):
         return self.bin_op(self.fator, (Lexer.TT_EXP, Lexer.TT_MUL, Lexer.TT_DIV))
-
     
     def expr(self):
         return self.bin_op(self.termo, (Lexer.TT_PLUS, Lexer.TT_MINUS))
-    
-    
 
     def bin_op(self, func, ops):
         res = ParserResultado.ParserResultado()
         esq = res.registro(func())
         if res.erro: return res
-
         while self.token_atual.tipo_token in ops:
             op_tok = self.token_atual
             res.registro(self.avancar())
             dir = res.registro(func())
             if res.erro: return res
             esq = NumeroDeNos.BinOpNo(esq, op_tok, dir)
-
         return res.sucesso(esq)

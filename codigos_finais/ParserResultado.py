@@ -12,7 +12,6 @@ class ParserResultado:
         if isinstance(res, ParserResultado):
             if res.erro: self.erro = res.erro
             return res.no
-        
         return res
     
     def sucesso(self, no):

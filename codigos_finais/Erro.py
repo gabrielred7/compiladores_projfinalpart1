@@ -2,7 +2,6 @@
 Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
-import Posicao
 
 class Erro:
     def __init__(self, pos_ini, pos_fim, erro_nome, detalhes):
@@ -21,7 +20,7 @@ class CharIlegalErro(Erro):
     def __init__(self, pos_ini, pos_fim,detalhes):
         super().__init__(pos_ini, pos_fim,"Erro: Caracter ilegal", detalhes)    
 
-#Erro do processo do parser
+#Erro do processo do Parser
 class SintaxeInvalidaErro(Erro):
     def __init__(self, pos_ini, pos_fim,detalhes=''):
         super().__init__(pos_ini, pos_fim,'Sintaxe Inválida',detalhes)

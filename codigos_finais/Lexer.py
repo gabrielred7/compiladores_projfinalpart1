@@ -6,17 +6,16 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 import Token
 import Posicao
 import Erro
-"""
-OBS: Professor não conseguimos fazer esse programa usando expressoes regulares, forma que acredito que voce queria, entao usamosfuncoes como o int() para converter para hexadecimal, por exemplo. Somado a isso estamos com dificuldades de fazer isso funcionar, estavamos seguindo um exemplo do livro do dragão entao acredito que esteja certo, mas não consigo obter uma saida clara
 
 """
+OBS: Professor nos modificamos a classe lexer, fizemos isso para consertar os metodos que não estavam funcionando
 
+"""
 #CONSTANTES
 DIGITOS = '0123456789'
 HEXA    = '0123456789ABCDEF'
 
 #TOKENS
-
 TT_INT		= 'TokNumber'
 TT_PLUS     = 'TokOp OpSum'
 TT_MINUS    = 'TokOp OpSub'
@@ -31,7 +30,6 @@ TT_COM2     = 'TokComment2'
 TT_ERRO     = 'TokError'
 TT_HEXA     = 'TokHexadecimal'
 TT_EOF      = 'EOF'
-
 
 #Classe que implementa o analisador léxico. 
 class Lexer:
@@ -86,7 +84,6 @@ class Lexer:
         #if numero.startswith('0x'):
         return Token.Token(TT_HEXA, str(numero),pos_ini, self.posicao)
 
-
     def operadores(self):
         op = self.char_atual
         if op == '+':
@@ -109,21 +106,19 @@ class Lexer:
     # Lê o caractere atual e retorna o proximo token
     def next(self):
         tokens = []
-
         while self.char_atual is not None:
             if self.char_atual.isspace():
                 self.avancar()
 
             elif self.char_atual == '/':
                 self.avancar()
-                #if self.verificar() == '/':
                 if self.char_atual == '/':
                     tokens.append(self.pular_comentario_linha())
                     self.avancar()
-                #elif self.verificar() == '*':
                 elif self.char_atual == '*':
                     tokens.append(self.pular_comentario_bloco())
                     self.avancar()
+            
             elif self.char_atual == '0':
                 numero = self.char_atual
                 self.avancar()
@@ -133,7 +128,6 @@ class Lexer:
                         tokens.append(self.hexadecimal())
                 else:
                     tokens.append(Token.Token(TT_INT, pos_ini=self.posicao))
-
 
             elif self.char_atual in DIGITOS:
                 tokens.append(self.decimal())
