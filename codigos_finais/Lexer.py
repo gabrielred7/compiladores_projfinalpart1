@@ -7,8 +7,10 @@ import Token
 import Posicao
 import Erro
 
+
 """
 OBS: Professor nos modificamos a classe lexer, fizemos isso para consertar os metodos que não estavam funcionando
+
 
 """
 #CONSTANTES
@@ -112,6 +114,16 @@ class Lexer:
 
             elif self.char_atual == '/':
                 self.avancar()
+
+                #if self.verificar() == '/':
+                if self.char_atual == '/':
+                    tokens.append(self.pular_comentario_linha())
+                    self.avancar()
+                #elif self.verificar() == '*':
+                elif self.char_atual == '*':
+                    tokens.append(self.pular_comentario_bloco())
+                    self.avancar()
+
                 if self.char_atual == '/':
                     tokens.append(self.pular_comentario_linha())
                     self.avancar()
@@ -119,6 +131,7 @@ class Lexer:
                     tokens.append(self.pular_comentario_bloco())
                     self.avancar()
             
+
             elif self.char_atual == '0':
                 numero = self.char_atual
                 self.avancar()
@@ -143,4 +156,8 @@ class Lexer:
                 return [TT_ERRO], Erro.CharIlegalErro(pos_erro, self.posicao,"'" + char + "'")
 
         tokens.append(Token.Token(TT_EOF, pos_ini=self.posicao))
+
         return tokens, None
+
+        return tokens, None
+
