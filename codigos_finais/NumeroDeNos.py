@@ -7,6 +7,10 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 class NumeroDeNos:
     def __init__(self, tok):
         self.tok = tok
+
+
+        self.pos_ini = self.tok.pos_ini
+        self.pos_fim = self.tok.pos_fim
     
     def __repr__(self):
         return f'{self.tok}'
@@ -18,6 +22,11 @@ class BinOpNo:
         self.op_tok = op_tok
         self.no_dir = no_dir
 
+
+        self.pos_ini = self.no_esq.pos_ini
+        self.pos_fim = self.no_dir.pos_fim
+
+
     def __repr__(self):
         return f'({self.no_esq}, {self.op_tok}, {self.no_dir})'
 
@@ -25,6 +34,10 @@ class UnaryOpNo:
     def __init__(self, op_tok, no):
         self.op_tok = op_tok
         self.no = no
+
+        self.pos_ini = self.tok.pos_ini
+        self.pos_fim = self.tok.pos_fim
+
 
     def __repr__(self):
         return f'({self.op_tok}, {self.no})'
