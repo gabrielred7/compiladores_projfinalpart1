@@ -8,24 +8,35 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 
 import sys
 import Lexer
+import Erro
+import Parser
+import Interpretador
+import Contexto
 
 def run(texto):
     lexer = Lexer.Lexer(texto)
     tokens, erros = lexer.next()
+    if erros: return None, erros
 
-    return tokens
+    # Gera a AST
+    parser = Parser.Parser(tokens)
+    ast = parser.parse()
+    if ast.erro: return None, ast.erro
 
+    interpretador = Interpretador.Interpretador()
+    contexto = Contexto.Contexto('<programa>')
+    resultado = interpretador.visita(ast.no, contexto)
+
+    return resultado.valor, resultado.erro
+    #return ast.no, ast.erro
+    #return tokens, erros
 def main():
-    #texto_entrada = sys.stdin.read()
-    #lexer = Lexer(input())
+
     
     while True:
         texto = input()
-        resultado = run(texto)
-        #if token.tipo_token == 'TokEOF':
-        #    break #Fim dos arquivos
-        #print(token.tipo_token, token.valor_token)
+        resultado, erros = run(texto)
+        if erros: print(erros.as_string())
         print(resultado)
 
-#if __name__ == '__main__':
 main()

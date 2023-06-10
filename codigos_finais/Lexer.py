@@ -6,13 +6,11 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 import Token
 import Posicao
 import Erro
-"""
-OBS: Professor não conseguimos fazer esse programa usando expressoes regulares, forma que acredito que voce queria, entao usamosfuncoes como o int() para converter para hexadecimal, por exemplo. Somado a isso estamos com dificuldades de fazer isso funcionar, estavamos seguindo um exemplo do livro do dragão entao acredito que esteja certo, mas não consigo obter uma saida clara
 
-"""
 
 #CONSTANTES
 DIGITOS = '0123456789'
+HEXA    = '0123456789ABCDEF'
 
 #TOKENS
 
@@ -21,8 +19,15 @@ TT_PLUS     = 'TokOp OpSum'
 TT_MINUS    = 'TokOp OpSub'
 TT_MUL      = 'TokOp OpMul'
 TT_DIV      = 'TokOp OpDiv'
+TT_MOD      = 'TokOp OpMod'
+TT_EXP      = 'TokOp OpExp'
 TT_LPAREN   = 'LPAREN'
 TT_RPAREN   = 'RPAREN'
+TT_COM1     = 'TokComment1'
+TT_COM2     = 'TokComment2'
+TT_ERRO     = 'TokError'
+TT_HEXA     = 'TokHexadecimal'
+TT_EOF      = 'EOF'
 
 
 #Classe que implementa o analisador léxico. 
@@ -32,9 +37,6 @@ class Lexer:
         self.posicao = Posicao.Posicao(-1, 0, -1, text)
         self.char_atual = None
         self.avancar()
-
-    def error(self):
-        raise Exception('Caractere inválido')
 
     # O método avancar atribui a entrada ao char atual
     def avancar(self):
@@ -51,55 +53,55 @@ class Lexer:
         while self.char_atual is not None and self.char_atual != '\n':
             self.avancar()
         self.avancar()
+        return Token.Token(TT_COM1, pos_ini=self.posicao)
     
     def pular_comentario_bloco(self):
-        while self.char_atual is not None:
-            if self.char_atual == '*' and self.verificar() == '/':
+        while self.char_atual is not None and self.char_atual !='\n':
                 self.avancar()
-                self.avancar()
-                break
-            else:
-                self.avancar()
-
-    #Auxilia na verificação dos caracteres de comentarios
-    def verificar(self):
-        self.verificar_posicao = self.posicao + 1
-        return self.entrada[self.verificar_posicao] if self.verificar_posicao < len(self.entrada) else None
+                if self.char_atual == '*':
+                    self.avancar()
+                    if self.char_atual == '/':
+                        return Token.Token(TT_COM2, pos_ini=self.posicao)
+        self.avancar()
 
     def decimal(self):
         numero = ''
+        pos_ini = self.posicao.copia()
+
         while self.char_atual is not None and self.char_atual in DIGITOS:
             numero += self.char_atual
             self.avancar()
-        return Token.Token(TT_INT, int(numero))
+        return Token.Token(TT_INT, int(numero),pos_ini, self.posicao)
 
     def hexadecimal(self):
         numero = ''
-        while self.char_atual is not None and self.char_atual.isalnum():
+        pos_ini = self.posicao.copia()
+        #while self.char_atual is not None and self.char_atual.isalnum():
+        while self.char_atual is not None and self.char_atual in HEXA:
             numero += self.char_atual
             self.avancar()
-        if numero.startswith('0x'):
-            return int(numero[:2], 16)
-        else:
-            self.error()
+        #if numero.startswith('0x'):
+        return Token.Token(TT_HEXA, str(numero),pos_ini, self.posicao)
+
 
     def operadores(self):
         op = self.char_atual
-        self.avancar()
         if op == '+':
-            return Token.Token('TokOp', 'OpSum')
+            return Token.Token(TT_PLUS, pos_ini=self.posicao)
         elif op == '-':
-            return Token.Token('TokOp', 'OpSub')
+            return Token.Token(TT_MINUS, pos_ini=self.posicao)
         elif op == '*':
-            return Token.Token('TokOp', 'OpMult')
+            return Token.Token(TT_MUL, pos_ini=self.posicao)
         elif op == '/':
-            return Token.Token('TokOp', 'OpDiv')
+            return Token.Token(TT_DIV, pos_ini=self.posicao)
         elif op == '%':
-            return Token.Token('TokOp', 'OpMod')
+            return Token.Token(TT_MOD, pos_ini=self.posicao)
         elif op == '^':
-            return Token.Token('TokOp', 'OpExp')
-        else:
-            self.error()
+            return Token.Token(TT_EXP, pos_ini=self.posicao)
+        elif op == '(':
+            return Token.Token(TT_LPAREN, pos_ini=self.posicao)
+        elif op == ')':
+            return Token.Token(TT_RPAREN, pos_ini=self.posicao)
 
     # Lê o caractere atual e retorna o proximo token
     def next(self):
@@ -110,30 +112,38 @@ class Lexer:
                 self.avancar()
 
             elif self.char_atual == '/':
-                if self.verificar() == '/':
-                    self.pular_comentario_linha()
+                self.avancar()
+                #if self.verificar() == '/':
+                if self.char_atual == '/':
+                    tokens.append(self.pular_comentario_linha())
                     self.avancar()
-                elif self.verificar() == '*':
+                #elif self.verificar() == '*':
+                elif self.char_atual == '*':
+                    tokens.append(self.pular_comentario_bloco())
                     self.avancar()
-                    self.avancar()
-                    self.pular_comentario_bloco()
-                    self.avancar()
-
-            elif self.char_atual in DIGITOS:
-                tokens.append(self.decimal())
-            
             elif self.char_atual == '0':
+                numero = self.char_atual
                 self.avancar()
                 if self.char_atual == 'x':
                     self.avancar()
-                    return Token.Token('TokNumber', self.hexadecimal())
+                    if self.char_atual in HEXA:
+                        tokens.append(self.hexadecimal())
                 else:
-                    return Token.Token('TokNumber', 0)
+                    tokens.append(Token.Token(TT_INT, pos_ini=self.posicao))
+
+
+            elif self.char_atual in DIGITOS:
+                tokens.append(self.decimal())
                 
-            elif self.char_atual in ('+', '-', '*', '/', '%', '^'):
-                return self.operadores()
+            elif self.char_atual in ('+', '-', '*', '/', '%', '^', '(', ')'):
+                tokens.append(self.operadores())
+                self.avancar()
             
             else:
-                self.error()
+                pos_erro = self.posicao.copia()
+                char = self.char_atual
+                self.avancar()
+                return [TT_ERRO], Erro.CharIlegalErro(pos_erro, self.posicao,"'" + char + "'")
 
+        tokens.append(Token.Token(TT_EOF, pos_ini=self.posicao))
         return tokens, None
