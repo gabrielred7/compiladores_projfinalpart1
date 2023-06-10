@@ -5,13 +5,13 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 """
 
 #Arquivo principal
-
-import sys
 import Lexer
 import Erro
 import Parser
 import Interpretador
 import Contexto
+import Parser
+
 
 def run(texto):
     lexer = Lexer.Lexer(texto)
@@ -21,6 +21,7 @@ def run(texto):
     # Gera a AST
     parser = Parser.Parser(tokens)
     ast = parser.parse()
+
     if ast.erro: return None, ast.erro
 
     interpretador = Interpretador.Interpretador()
@@ -33,6 +34,12 @@ def run(texto):
 def main():
 
     
+
+
+    return ast.no, ast.erro
+    #return tokens, erros
+def main():
+
     while True:
         texto = input()
         resultado, erros = run(texto)

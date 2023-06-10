@@ -8,7 +8,9 @@ import Lexer
 import ParserResultado
 import NumeroDeNos
 import Erro
+
 import Token
+
 
 #Classe que implementa o parser
 class Parser:
@@ -33,7 +35,6 @@ class Parser:
             ))
         return res
     
-
     #Métodos da gramática: (Ainda incompletos)
     def fator(self):
         res = ParserResultado.ParserResultado()
@@ -57,6 +58,7 @@ class Parser:
                 res.registro(self.avancar())
                 return res.sucesso(expr)
             else:
+
                 return res.falha(Erro.SintaxeInvalidaErro(
                     self.token_atual.pos_ini, 
                     self.token_atual.pos_fim, "Espera-se ')'"))
@@ -74,11 +76,23 @@ class Parser:
             Lexer.TT_PLUS, Lexer.TT_MINUS))
     
     
+                return res.falha(Erro.SintaxeInvalidaErro(self.token_atual.pos_ini, self.token_atual.pos_fim, "Espera-se ')'"))
+
+        return res.falha(Erro.SintaxeInvalidaErro(tok.pos_ini, tok.pos_fim, 'Espera-se int ou hexa'))
+
+    def termo(self):
+        return self.bin_op(self.fator, (Lexer.TT_EXP, Lexer.TT_MUL, Lexer.TT_DIV))
+    
+    def expr(self):
+        return self.bin_op(self.termo, (Lexer.TT_PLUS, Lexer.TT_MINUS))
+
 
     def bin_op(self, func, ops):
         res = ParserResultado.ParserResultado()
         esq = res.registro(func())
         if res.erro: return res
+
+
 
         while self.token_atual.tipo_token in ops:
             op_tok = self.token_atual

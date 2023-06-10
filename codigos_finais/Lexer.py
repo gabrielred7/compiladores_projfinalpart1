@@ -8,12 +8,16 @@ import Posicao
 import Erro
 
 
+"""
+OBS: Professor nos modificamos a classe lexer, fizemos isso para consertar os metodos que não estavam funcionando
+
+
+"""
 #CONSTANTES
 DIGITOS = '0123456789'
 HEXA    = '0123456789ABCDEF'
 
 #TOKENS
-
 TT_INT		= 'TokNumber'
 TT_PLUS     = 'TokOp OpSum'
 TT_MINUS    = 'TokOp OpSub'
@@ -28,7 +32,6 @@ TT_COM2     = 'TokComment2'
 TT_ERRO     = 'TokError'
 TT_HEXA     = 'TokHexadecimal'
 TT_EOF      = 'EOF'
-
 
 #Classe que implementa o analisador léxico. 
 class Lexer:
@@ -83,7 +86,6 @@ class Lexer:
         #if numero.startswith('0x'):
         return Token.Token(TT_HEXA, str(numero),pos_ini, self.posicao)
 
-
     def operadores(self):
         op = self.char_atual
         if op == '+':
@@ -106,13 +108,13 @@ class Lexer:
     # Lê o caractere atual e retorna o proximo token
     def next(self):
         tokens = []
-
         while self.char_atual is not None:
             if self.char_atual.isspace():
                 self.avancar()
 
             elif self.char_atual == '/':
                 self.avancar()
+
                 #if self.verificar() == '/':
                 if self.char_atual == '/':
                     tokens.append(self.pular_comentario_linha())
@@ -121,6 +123,15 @@ class Lexer:
                 elif self.char_atual == '*':
                     tokens.append(self.pular_comentario_bloco())
                     self.avancar()
+
+                if self.char_atual == '/':
+                    tokens.append(self.pular_comentario_linha())
+                    self.avancar()
+                elif self.char_atual == '*':
+                    tokens.append(self.pular_comentario_bloco())
+                    self.avancar()
+            
+
             elif self.char_atual == '0':
                 numero = self.char_atual
                 self.avancar()
@@ -130,7 +141,6 @@ class Lexer:
                         tokens.append(self.hexadecimal())
                 else:
                     tokens.append(Token.Token(TT_INT, pos_ini=self.posicao))
-
 
             elif self.char_atual in DIGITOS:
                 tokens.append(self.decimal())
@@ -146,4 +156,8 @@ class Lexer:
                 return [TT_ERRO], Erro.CharIlegalErro(pos_erro, self.posicao,"'" + char + "'")
 
         tokens.append(Token.Token(TT_EOF, pos_ini=self.posicao))
+
         return tokens, None
+
+        return tokens, None
+
