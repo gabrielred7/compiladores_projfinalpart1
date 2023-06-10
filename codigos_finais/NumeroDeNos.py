@@ -8,7 +8,6 @@ class NumeroDeNos:
     def __init__(self, tok):
         self.tok = tok
 
-
         self.pos_ini = self.tok.pos_ini
         self.pos_fim = self.tok.pos_fim
     
@@ -22,10 +21,8 @@ class BinOpNo:
         self.op_tok = op_tok
         self.no_dir = no_dir
 
-
         self.pos_ini = self.no_esq.pos_ini
         self.pos_fim = self.no_dir.pos_fim
-
 
     def __repr__(self):
         return f'({self.no_esq}, {self.op_tok}, {self.no_dir})'
@@ -37,7 +34,6 @@ class UnaryOpNo:
 
         self.pos_ini = self.tok.pos_ini
         self.pos_fim = self.tok.pos_fim
-
 
     def __repr__(self):
         return f'({self.op_tok}, {self.no})'
