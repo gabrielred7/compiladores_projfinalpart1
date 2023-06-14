@@ -4,6 +4,7 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 """
 import Erro
 
+#Classe para guardar números e fazer operações com outros números
 class Numero:
     def __init__(self, valor):
         self.valor = valor
@@ -60,7 +61,13 @@ class Numero:
                           outro.valor).set_contexto(
                 self.contexto
                           ), None
-        
+
+    def copia(self):
+        copia = Numero(self.valor)
+        copia.set_pos(self.pos_ini, self.pos_fim)
+        copia.set_contexto(self.contexto)
+        return copia 
+
     def __repr__(self):
         return str(self.valor)
         

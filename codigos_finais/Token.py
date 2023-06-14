@@ -18,9 +18,13 @@ class Token:
             self.pos_fim.avancar()
 
         if pos_fim:
-            self.pos_fim = pos_fim
+            self.pos_fim = pos_fim.copia()
 
 
     def __repr__(self):
         if self.valor_token: return f'{self.tipo_token}:{self.valor_token}'
         return f'{self.tipo_token}'
+    
+    #Checa se o token dado é igual ao tipo e o valor
+    def E_igual(self, tipo_, valor):
+        return self.tipo_token == tipo_ and self.valor_token == valor
