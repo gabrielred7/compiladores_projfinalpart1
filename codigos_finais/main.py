@@ -12,8 +12,14 @@ import Erro
 import Parser
 import Interpretador
 import Contexto
+import TabelaSimbolo
+import Numero
+
+tabela_Simbolos_Global = TabelaSimbolo.TabelaSimbolo()
+
 
 def run(texto):
+    #Gera tokens
     lexer = Lexer.Lexer(texto)
     tokens, erros = lexer.next()
     if erros: return None, erros
@@ -23,8 +29,10 @@ def run(texto):
     ast = parser.parse()
     if ast.erro: return None, ast.erro
 
+    #Gera o interpretador
     interpretador = Interpretador.Interpretador()
     contexto = Contexto.Contexto('<programa>')
+    contexto.tabela_simbolo = tabela_Simbolos_Global
     resultado = interpretador.visita(ast.no, contexto)
 
     return resultado.valor, resultado.erro
@@ -37,6 +45,6 @@ def main():
         texto = input()
         resultado, erros = run(texto)
         if erros: print(erros.as_string())
-        print(resultado)
+        else: print(resultado)
 
 main()

@@ -7,18 +7,26 @@ class ParserResultado:
     def __init__(self):
         self.erro = None
         self.no = None
+        self.count_avanca = 0
 
+    #Registro para avanços
+    def registro_de_avanco(self):
+        self.count_avanca += 1
+
+    ##Checa se tem erro no resultado. Se sim,
+    #Ele é alocado para a class erro.
     def registro(self, res):
-        if isinstance(res, ParserResultado):
-            if res.erro: self.erro = res.erro
-            return res.no
-        
-        return res
-    
+        self.count_avanca += res.count_avanca
+        if res.erro: self.erro = res.erro
+        return res.no
+
+    #Retorna o Nó se sucesso
     def sucesso(self, no):
         self.no = no
         return self
     
+    #Retorna um erro 
     def falha(self, erro):
-        self.erro = erro
+        if not self.erro or self.count_avanca == 0:
+            self.erro = erro
         return self
