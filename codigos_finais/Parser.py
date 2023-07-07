@@ -85,7 +85,7 @@ class Parser:
             return res.sucesso(NumeroDeNos.VarAlocadoNo(var_nome,
                                                         expr))
 
-        no = res.registro(self.bin_op(self.termo, (
+        no = res.registro(self.bin_op(self.comp_expr, (
             Lexer.TT_PLUS, Lexer.TT_MINUS)))
 
         if res.erro:
@@ -134,6 +134,34 @@ class Parser:
     def pot(self):
         return self.bin_op(self.atom, (Lexer.TT_EXP, ), self.fator)
 
+    def expr_Aritm(self):
+        return self.bin_op(self.fator, ( Lexer.TT_PLUS, Lexer.TT_MINUS))
+    
+    def comp_expr(self):
+        res = ParserResultado.ParserResultado()
+
+        if self.token_atual.E_igual(Lexer.TT_KEYWORD, 'NOT'):
+            op_tok = self.token_atual
+            res.registro_de_avanco()
+            self.avancar()
+
+            no = res.registro(self.comp_expr())
+            if res.erro: return res
+            return res.sucesso(NumeroDeNos.UnaryOpNo(op_tok, no))
+        
+        no = res.registro(self.bin_op(self.expr_Aritm,
+                                      (Lexer.TT_2EQ, Lexer.TT_MAIOREQQUE,
+                                        Lexer.TT_MAIORQUE, Lexer.TT_MENOREQQUE,
+                                          Lexer.TT_MENORQUE, Lexer.TT_NEQ)))
+
+        if res.erro:
+            return res.falha(Erro.SintaxeInvalidaErro(
+                self.token_atual.pos_ini, self.token_atual.pos_fim,
+                "Espera-se int, hex, id, '+', '-' or '(' or 'NOT'" 
+            ))
+        
+        return res.sucesso(no)
+
 #####################################################
 
 #Checa os tokens que podem ser aceitos
@@ -145,7 +173,8 @@ class Parser:
         esq = res.registro(func_a())
         if res.erro: return res
 
-        while self.token_atual.tipo_token in ops:
+        while self.token_atual.tipo_token in ops or (self.token_atual.tipo_token, 
+         self.token_atual.valor_token) in ops:
             op_tok = self.token_atual
             res.registro_de_avanco()
             self.avancar()

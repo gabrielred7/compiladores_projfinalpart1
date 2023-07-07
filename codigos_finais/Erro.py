@@ -16,10 +16,15 @@ class Erro:
         resultado += f'linha {self.pos_ini.ln + 1}'
         return resultado
 
-#Erro do processo do Lexer    
+#Erro do processo do Lexer | caracter ilegal   
 class CharIlegalErro(Erro):
     def __init__(self, pos_ini, pos_fim,detalhes):
         super().__init__(pos_ini, pos_fim,"Erro: Caracter ilegal", detalhes)    
+
+#Erro do processo do Lexer | caracter esperado
+class CharEsperadoErro(Erro):
+    def __init__(self, pos_ini, pos_fim, detalhes=''):
+        super().__init__(pos_ini, pos_fim, 'Caracter Esperado', detalhes)
 
 #Erro do processo do parser
 class SintaxeInvalidaErro(Erro):
