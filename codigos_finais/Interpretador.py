@@ -61,6 +61,8 @@ class Interpretador:
         dir = res.registro(self.visita(no.no_dir, contexto))
         if res.erro: return res
 
+        erro = None
+        resultado = None
         if no.op_tok.tipo_token == Lexer.TT_PLUS:
             resultado, erro = esq.somado(dir)
         elif no.op_tok.tipo_token == Lexer.TT_MINUS:
@@ -71,6 +73,22 @@ class Interpretador:
             resultado, erro = esq.dividido(dir)
         elif no.op_tok.tipo_token == Lexer.TT_EXP:
             resultado, erro = esq.exponenciado(dir)
+        elif no.op_tok.tipo_token == Lexer.TT_EQ:
+            resultado, erro = esq.get_comparado_Eq(dir)
+        elif no.op_tok.tipo_token == Lexer.TT_NEQ:
+            resultado, erro = esq.get_comparado_Neq(dir)
+        elif no.op_tok.tipo_token == Lexer.TT_MENORQUE:
+            resultado, erro = esq.get_comparado_MenorQue(dir)
+        elif no.op_tok.tipo_token == Lexer.TT_MAIORQUE:
+            resultado, erro = esq.get_comparado_MaiorQue(dir)
+        elif no.op_tok.tipo_token == Lexer.TT_MENOREQQUE:
+            resultado, erro = esq.get_comparado_MenorEqQue(dir)
+        elif no.op_tok.tipo_token == Lexer.TT_MAIOREQQUE:
+            resultado, erro = esq.get_comparado_MaiorEqQue(dir)
+        elif no.op_tok.E_igual(Lexer.TT_KEYWORD, "AND"):
+            resultado, erro = esq.E(dir)
+        elif no.op_tok.E_igual(Lexer.TT_KEYWORD, "OR"):
+            resultado, erro = esq.Or(dir)
 
         if erro:
             return res.falha(erro)
@@ -86,6 +104,8 @@ class Interpretador:
 
         if no.op_tok.tipo_token == Lexer.TT_MINUS:
             numero, erro = numero.multiplicado(Numero.Numero(-1))
+        elif no.op_tok.E_igual(Lexer.TT_KEYWORD, 'NOT'):
+            numero, erro = numero.Nao()
 
         if erro:
             return res.falha(erro)

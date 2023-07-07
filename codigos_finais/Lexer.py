@@ -33,8 +33,15 @@ TT_EOF      = 'EOF'
 TT_KEYWORD  = 'Tok_KeyWord'
 TT_ID       = 'Tok_ID'
 TT_EQ       = 'Tok_EQ'
+TT_2EQ      = 'Tok_2EQ'
+TT_NEQ      = 'Tok_NEQ'
+TT_MENORQUE = 'Tok_MenorQue'
+TT_MAIORQUE = 'Tok_MaiorQue'
+TT_MENOREQQUE = 'Tok_MenorEqQue'
+TT_MAIOREQQUE = 'Tok_MaiorEqQue'
 
-KEYWORD = [ 'VAR' ]
+
+KEYWORD = [ 'VAR', 'AND', 'OR', 'NOT' ]
 
 #Classe que implementa o analisador léxico. 
 class Lexer:
@@ -100,6 +107,50 @@ class Lexer:
         #if numero.startswith('0x'):
         return Token.Token(TT_HEXA, str(numero),pos_ini, self.posicao)
 
+    def nao_Iguais(self):
+        pos_ini = self.posicao.copia()
+        self.avancar()
+
+        if self.char_atual == '=':
+            self.avancar()
+            return Token.Token(TT_NEQ, pos_ini=pos_ini, pos_fim=self.posicao), None
+        
+        self.avancar()
+        return None, Erro.CharEsperadoErro(pos_ini, self.posicao, "'=' depois de !")
+
+    def Iguais(self):
+        tipo_token = TT_EQ
+        pos_ini = self.posicao.copia()
+        self.avancar()
+
+        if self.char_atual == '=':
+            self.avancar()
+            tipo_token = TT_2EQ
+
+        return Token.Token(tipo_token, pos_ini=pos_ini, pos_fim=self.posicao)
+    
+    def menor_Que(self):
+        tipo_token = TT_MENORQUE
+        pos_ini = self.posicao.copia()
+        self.avancar()
+
+        if self.char_atual == '=':
+            self.avancar()
+            tipo_token = TT_MENOREQQUE
+
+        return Token.Token(tipo_token, pos_ini=pos_ini, pos_fim=self.posicao)
+
+    def maior_Que(self):
+        tipo_token = TT_MAIORQUE
+        pos_ini = self.posicao.copia()
+        self.avancar()
+
+        if self.char_atual == '=':
+            self.avancar()
+            tipo_token = TT_MAIOREQQUE
+
+        return Token.Token(tipo_token, pos_ini=pos_ini, pos_fim=self.posicao)
+
 
     def operadores(self):
         op = self.char_atual
@@ -116,11 +167,15 @@ class Lexer:
         elif op == '^':
             return Token.Token(TT_EXP, pos_ini=self.posicao)
         elif op == '=':
-            return Token.Token(TT_EQ, pos_ini=self.posicao)
+            return self.Iguais()
         elif op == '(':
             return Token.Token(TT_LPAREN, pos_ini=self.posicao)
         elif op == ')':
             return Token.Token(TT_RPAREN, pos_ini=self.posicao)
+        elif op == '<':
+            return self.menor_Que()
+        elif op == '>':
+            return self.maior_Que()
 
     # Lê o caractere atual e retorna o proximo token
     def next(self):
@@ -136,7 +191,13 @@ class Lexer:
             elif self.char_atual in LETRAS:
                 tokens.append(self.letras())
 
-            elif self.char_atual in ('+', '-', '*', '/', '%', '^', '(', ')', '='):
+            elif self.char_atual == '!':
+                token, erro = self.nao_Iguais()
+                if erro: return [], erro
+                tokens.append(token)
+
+            elif self.char_atual in ('+', '-', '*', '/', '%', '^', '(',
+                                      ')', '=', '<', '>'):
                 tokens.append(self.operadores())
                 self.avancar()
 

@@ -61,6 +61,65 @@ class Numero:
                           outro.valor).set_contexto(
                 self.contexto
                           ), None
+        
+    def get_comparado_Eq(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor == 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def get_comparado_Neq(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor != 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def get_comparado_MenorQue(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor < 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def get_comparado_MaiorQue(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor > 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+
+    def get_comparado_MenorEqQue(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor <= 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def get_comparado_MaiorEqQue(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor >= 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def E(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor and 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def Ou(self, outro):
+        if isinstance(outro, Numero):
+            return Numero(self.valor or 
+                          outro.valor).set_contexto(
+                self.contexto
+                          ), None
+        
+    def Nao(self):
+        return Numero(1 if self.valor == 0 else 0).set_contexto(self.contexto), None
 
     def copia(self):
         copia = Numero(self.valor)

@@ -24,16 +24,22 @@ com o operador entre as expressões. A^B, (A+B)*C, etc.
         3. + e -
 
 expr  : KEYWORD:VAR ID EQ expr
-        :termo ((SOMA|SUB) termo)*
+        :comp-expr ((KEYWORD:AND|KEYWORD:OR) comp-expr)*
+
+comp-expr : NOT comp-expr
+              :Expr-Aritm ((==|<|>|<=|>=) Expr-Aritm)*
+
+Expr-Aritm  : termo ((SOMA|SUB) termo)*
 
 termo : fator ((EXP|MULT|DIV) fator)*
 
-fator : INT|HEXA
-            : (SOMA|SUB) fator
-            : LPAREN expr RPAREN
+fator : (SOMA|SUB) fator
+            : pot
 
 
 pot   : atom (pot fator)^
 
 atom  :INT|HEX|ID
       :LPAREN expr RPAREN
+
+! 

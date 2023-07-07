@@ -16,7 +16,8 @@ import TabelaSimbolo
 import Numero
 
 tabela_Simbolos_Global = TabelaSimbolo.TabelaSimbolo()
-
+tabela_Simbolos_Global.set("FALSO", Numero.Numero(0))
+tabela_Simbolos_Global.set("VERDADEIRO", Numero.Numero(1))
 
 def run(texto):
     #Gera tokens
