@@ -41,5 +41,9 @@ pot   : atom (pot fator)^
 
 atom  :INT|HEX|ID
       :LPAREN expr RPAREN
+      : if-expr
 
-! 
+CMDS:
+if-expr : KEYWORD: IF expr { CMDS }
+         KEYWORD: ELIF expr { CMDS }*
+         KEYWORD: ELSE { CMDS}?

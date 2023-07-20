@@ -46,6 +46,6 @@ def main():
         texto = input()
         resultado, erros = run(texto)
         if erros: print(erros.as_string())
-        else: print(resultado)
+        elif resultado: print(resultado)
 
 main()

@@ -16,32 +16,34 @@ LETRAS_DIGITOS = LETRAS + DIGITOS
 
 #TOKENS
 
-TT_INT		= 'TokNumber'
-TT_PLUS     = 'TokOp OpSum'
-TT_MINUS    = 'TokOp OpSub'
-TT_MUL      = 'TokOp OpMul'
-TT_DIV      = 'TokOp OpDiv'
-TT_MOD      = 'TokOp OpMod'
-TT_EXP      = 'TokOp OpExp'
-TT_LPAREN   = 'LPAREN'
-TT_RPAREN   = 'RPAREN'
-TT_COM1     = 'TokComment1'
-TT_COM2     = 'TokComment2'
-TT_ERRO     = 'TokError'
-TT_HEXA     = 'TokHexadecimal'
-TT_EOF      = 'EOF'
-TT_KEYWORD  = 'Tok_KeyWord'
-TT_ID       = 'Tok_ID'
-TT_EQ       = 'Tok_EQ'
-TT_2EQ      = 'Tok_2EQ'
-TT_NEQ      = 'Tok_NEQ'
-TT_MENORQUE = 'Tok_MenorQue'
-TT_MAIORQUE = 'Tok_MaiorQue'
+TT_INT		  = 'TokNumber'
+TT_PLUS       = 'TokOp OpSum'
+TT_MINUS      = 'TokOp OpSub'
+TT_MUL        = 'TokOp OpMul'
+TT_DIV        = 'TokOp OpDiv'
+TT_MOD        = 'TokOp OpMod'
+TT_EXP        = 'TokOp OpExp'
+TT_LPAREN     = 'LPAREN'
+TT_RPAREN     = 'RPAREN'
+TT_COM1       = 'TokComment1'
+TT_COM2       = 'TokComment2'
+TT_ERRO       = 'TokError'
+TT_HEXA       = 'TokHexadecimal'
+TT_EOF        = 'EOF'
+TT_KEYWORD    = 'Tok_KeyWord'
+TT_ID         = 'Tok_ID'
+TT_EQ         = 'Tok_EQ'
+TT_2EQ        = 'Tok_2EQ'
+TT_NEQ        = 'Tok_NEQ'
+TT_MENORQUE   = 'Tok_MenorQue'
+TT_MAIORQUE   = 'Tok_MaiorQue'
 TT_MENOREQQUE = 'Tok_MenorEqQue'
 TT_MAIOREQQUE = 'Tok_MaiorEqQue'
+TT_LBLOCO     = 'LBLOCO'
+TT_RBLOCO     = 'RBLOCO'
 
 
-KEYWORD = [ 'VAR', 'AND', 'OR', 'NOT' ]
+KEYWORD = [ 'VAR', 'AND', 'OR', 'NOT', 'IF', 'ELIF', 'ELSE' ]
 
 #Classe que implementa o analisador léxico. 
 class Lexer:
@@ -172,6 +174,10 @@ class Lexer:
             return Token.Token(TT_LPAREN, pos_ini=self.posicao)
         elif op == ')':
             return Token.Token(TT_RPAREN, pos_ini=self.posicao)
+        elif op == '{':
+            return Token.Token(TT_LBLOCO, pos_ini=self.posicao)
+        elif op == '}':
+            return Token.Token(TT_RBLOCO, pos_ini=self.posicao)
         elif op == '<':
             return self.menor_Que()
         elif op == '>':
@@ -197,7 +203,7 @@ class Lexer:
                 tokens.append(token)
 
             elif self.char_atual in ('+', '-', '*', '/', '%', '^', '(',
-                                      ')', '=', '<', '>'):
+                                      ')', '{', '}', '=', '<', '>'):
                 tokens.append(self.operadores())
                 self.avancar()
 

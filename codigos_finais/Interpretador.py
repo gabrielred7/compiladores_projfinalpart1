@@ -61,8 +61,8 @@ class Interpretador:
         dir = res.registro(self.visita(no.no_dir, contexto))
         if res.erro: return res
 
-        erro = None
-        resultado = None
+        #erro = None
+        #resultado = None
         if no.op_tok.tipo_token == Lexer.TT_PLUS:
             resultado, erro = esq.somado(dir)
         elif no.op_tok.tipo_token == Lexer.TT_MINUS:
@@ -73,7 +73,7 @@ class Interpretador:
             resultado, erro = esq.dividido(dir)
         elif no.op_tok.tipo_token == Lexer.TT_EXP:
             resultado, erro = esq.exponenciado(dir)
-        elif no.op_tok.tipo_token == Lexer.TT_EQ:
+        elif no.op_tok.tipo_token == Lexer.TT_2EQ:
             resultado, erro = esq.get_comparado_Eq(dir)
         elif no.op_tok.tipo_token == Lexer.TT_NEQ:
             resultado, erro = esq.get_comparado_Neq(dir)
@@ -88,7 +88,7 @@ class Interpretador:
         elif no.op_tok.E_igual(Lexer.TT_KEYWORD, "AND"):
             resultado, erro = esq.E(dir)
         elif no.op_tok.E_igual(Lexer.TT_KEYWORD, "OR"):
-            resultado, erro = esq.Or(dir)
+            resultado, erro = esq.Ou(dir)
 
         if erro:
             return res.falha(erro)
@@ -112,3 +112,21 @@ class Interpretador:
         else:
             return res.sucesso(numero.set_pos(no.pos_ini, no.pos_fim))
 
+    def visit_IfNo(self, no, contexto):
+        res = RTResultado.RTResultado()
+
+        for condicao, expr in no.cases:
+            condicao_valor = res.registro(self.visita(condicao, contexto))
+            if res.erro: return res
+
+            if condicao_valor.is_true():
+                expr_valor = res.registro(self.visita(expr, contexto))
+                if res.erro: return res
+                return res.sucesso(expr_valor)
+            
+        if no.else_case:
+            else_valor = res.registro(self.visita(no.else_case, contexto))
+            if res.erro: return res
+            return res.sucesso(else_valor)
+        
+        return res.sucesso(None)
