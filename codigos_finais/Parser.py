@@ -86,7 +86,7 @@ class Parser:
                                                         expr))
 
         no = res.registro(self.bin_op(self.comp_expr, (
-            Lexer.TT_PLUS, Lexer.TT_MINUS)))
+            (Lexer.TT_KEYWORD, 'AND'), (Lexer.TT_KEYWORD, 'OR'))))
 
         if res.erro:
             return res.falha(Erro.SintaxeInvalidaErro(
@@ -125,11 +125,107 @@ class Parser:
                     self.token_atual.pos_ini, self.token_atual.pos_fim,
                     "Espera-se ')' "
                 ))
-            
+        elif tok.E_igual(Lexer.TT_KEYWORD, 'IF'):
+            if_expr = res.registro(self.if_expr())
+            if res.erro: return res
+            return res.sucesso(if_expr)
+
+
         return res.falha(Erro.SintaxeInvalidaErro(
             tok.pos_ini, tok.pos_fim,
             "Espera-se int, hexa, id, '+', '-', '('"
         ))
+    
+    def if_expr(self):
+        res = ParserResultado.ParserResultado()
+        cases = []
+        else_case = None
+        tok = self.token_atual
+
+        if not self.token_atual.E_igual(Lexer.TT_KEYWORD, 'IF'):
+            return res.falha(Erro.SintaxeInvalidaErro(
+                self.token_atual.pos_ini, self.token_atual.pos_fim,
+                f"Espera-se 'IF'"
+            ))
+        
+        res.registro_de_avanco()
+        self.avancar()
+        #expr = res.registro(self.expr())
+        condicao = res.registro(self.expr())
+        if res.erro: return res
+
+        
+        if tok.tipo_token == Lexer.TT_LBLOCO:
+            return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini, tok.pos_fim,
+                f"Espera-se Abre chaves" 
+            ))
+        """
+        if tok.tipo_token == Lexer.TT_LBLOCO:
+            res.registro_de_avanco()
+            self.avancar()
+            expr = res.registro(self.expr())
+            if res.erro: return res
+            cases.append((condicao, expr))
+            if self.token_atual.tipo_token == Lexer.TT_RBLOCO:
+                res.registro_de_avanco()
+                self.avancar()
+                return res.sucesso(expr)
+            else:
+                return res.falha(Erro.SintaxeInvalidaErro(
+                    self.token_atual.pos_ini, self.token_atual.pos_fim,
+                    "Espera-se '}' "
+                ))
+        """
+        res.registro_de_avanco()
+        self.avancar()
+
+        expr = res.registro(self.expr())
+        if res.erro: return res
+        cases.append((condicao, expr))
+        
+        if not tok.tipo_token == Lexer.TT_RBLOCO:
+            return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini, tok.pos_fim,
+                f"Espera-se Fecha chaves" 
+            ))
+        
+        while tok.E_igual(Lexer.TT_KEYWORD, 'ELIF'):
+            res.registro_de_avanco()
+            self.avancar()
+
+            condicao = res.registro(self.expr())
+            if res.erro: return res
+
+            if not tok.tipo_token == Lexer.TT_LBLOCO:
+                return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini, tok.pos_fim,
+                f"Espera-se Abre chaves" 
+            ))
+
+            res.registro_de_avanco()
+            self.avancar()
+
+            expr = res.registro(self.expr())
+            if res.erro: return res
+            cases.append((condicao, expr))
+
+            if not tok.tipo_token == Lexer.TT_RBLOCO:
+                return res.falha(Erro.SintaxeInvalidaErro(
+                    tok.pos_ini, tok.pos_fim,
+                    f"Espera-se Fecha chaves" 
+                ))
+
+        if tok.E_igual(Lexer.TT_KEYWORD, 'ELSE'):
+            res.registro_de_avanco()
+            self.avancar()
+
+            else_case = res.registro(self.expr())
+            if res.erro: return res
+
+        return res.sucesso(NumeroDeNos.IfNo(cases, else_case))
+
+
 
     def pot(self):
         return self.bin_op(self.atom, (Lexer.TT_EXP, ), self.fator)

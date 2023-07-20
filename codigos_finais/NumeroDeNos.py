@@ -56,3 +56,13 @@ class VarAlocadoNo:
 
         self.pos_ini = self.var_nome_token.pos_ini
         self.pos_fim = self.valor_no.pos_fim
+
+
+#class para nó if
+class IfNo:
+    def __init__(self, cases, else_case):
+        self.cases = cases
+        self.else_case = else_case
+
+        self.pos_ini = self.cases[0][0].pos_ini
+        self.pos_fim = (self.else_case or self.cases[len(self.cases) - 1][0]).pos_fim

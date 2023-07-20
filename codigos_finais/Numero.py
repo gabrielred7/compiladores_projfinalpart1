@@ -127,6 +127,9 @@ class Numero:
         copia.set_contexto(self.contexto)
         return copia 
 
+    def is_true(self):
+        return self.valor != 0
+
     def __repr__(self):
         return str(self.valor)
         
