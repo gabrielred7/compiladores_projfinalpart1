@@ -66,3 +66,10 @@ class IfNo:
 
         self.pos_ini = self.cases[0][0].pos_ini
         self.pos_fim = (self.else_case or self.cases[len(self.cases) - 1][0]).pos_fim
+
+#Class para bloco
+class BlocoNo:
+    def __init__(self, cmds, pos_ini, pos_fim):
+        self.cmds = cmds
+        self.pos_ini = pos_ini
+        self.pos_fim = pos_fim
