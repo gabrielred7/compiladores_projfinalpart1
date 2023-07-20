@@ -114,7 +114,7 @@ class Parser:
         elif tok.tipo_token == Lexer.TT_LPAREN:
             res.registro_de_avanco()
             self.avancar()
-            expr = res.registro(self.expr())
+            expr = res.registro(self.parser_expr())
             if res.erro: return res
             if self.token_atual.tipo_token == Lexer.TT_RPAREN:
                 res.registro_de_avanco()
@@ -125,11 +125,12 @@ class Parser:
                     self.token_atual.pos_ini, self.token_atual.pos_fim,
                     "Espera-se ')' "
                 ))
+            """
         elif tok.E_igual(Lexer.TT_KEYWORD, 'IF'):
             if_expr = res.registro(self.if_expr())
             if res.erro: return res
             return res.sucesso(if_expr)
-
+            """
 
         return res.falha(Erro.SintaxeInvalidaErro(
             tok.pos_ini, tok.pos_fim,
@@ -257,6 +258,199 @@ class Parser:
             ))
         
         return res.sucesso(no)
+    
+        # Atualize a função `parse_cmds` no módulo Parser.py
+
+    def parser_cmds(self):
+        resultado = ParserResultado()
+        cmds = []
+        
+        while self.pos < len(self):
+            cmd = None
+
+            if self.token_atual.E_igual(Lexer.TT_KEYWORD, 'PRINT'):
+                cmd = parser_print(self)
+            elif self.esta_no_tipo(TT_VAR):
+                cmd = parser_declaracao(self)
+            elif self.esta_no_tipo(Lexer.TT_ID):
+                if self.ver_proximo().tipo_token == Lexer.TT_EQ:
+                    cmd = parser_atribuicao(self)
+                else:
+                    cmd = parser_expr(self)
+                    if not self.esta_no_tipo(TT_SEMICOLON):
+                        return resultado.falha(SintaxeInvalidaErro(self.ver_atual().pos_ini, self.ver_atual().pos_fim, "';' esperado"))
+            elif self.esta_no_tipo(TT_IF):
+                cmd = parser_if(self)
+            elif self.esta_no_tipo(TT_WHILE):
+                cmd = parser_while(self)
+            else:
+                return resultado
+
+            if cmd:
+                cmds.append(cmd)
+
+        return resultado.sucesso(cmds)
+
+    def parser_print(tokens):
+        resultado = ParserResultado()
+        pos_ini = tokens.ver_atual().pos_ini
+
+        if not tokens.avancar():
+            return resultado.falha(SintaxeInvalidaErro(tokens.ver_atual().pos_ini, tokens.ver_atual().pos_fim, "Expressão inválida"))
+
+        exp = resultado.registro(parser_expr(tokens))
+        if resultado.erro:
+            return resultado
+
+        if not tokens.esta_no_tipo(TT_SEMICOLON):
+            return resultado.falha(SintaxeInvalidaErro(tokens.ver_atual().pos_ini, tokens.ver_atual().pos_fim, "';' esperado"))
+
+        return resultado.sucesso(PrintNo(exp, pos_ini, tokens.ver_atual().pos_fim))
+
+    def var(self):
+        res = ParserResultado.ParserResultado()
+        tok = self.token_atual
+
+        if tok.E_igual(Lexer.TT_KEYWORD, 'VAR'):
+            res.registro_de_avanco()
+            self.avancar()
+
+
+            if tok.tipo_token != Lexer.TT_ID:
+                return res.falha(Erro.SintaxeInvalidaErro(
+                    tok.pos_ini, 
+                    tok.pos_fim, 
+                    "Espera-se 'Identificador'"))
+
+
+            res.registro_de_avanco()
+            self.avancar()
+
+            if tok.tipo_token != Lexer.TT_EQ:
+                    return res.falha(Erro.SintaxeInvalidaErro(
+                        tok.pos_ini, 
+                        tok.pos_fim,
+                        "Espera-se '='"
+                    ))
+            
+            res.registro_de_avanco()
+            self.avancar()
+            expr = res.registro(self.expr())
+            if res.erro: return res
+
+            if not tok.tipo_token != Lexer.TT_SEMICOLON:
+                return res.falha(Erro.SintaxeInvalidaErro(
+                    tok.pos_ini, 
+                    tok.pos_fim, 
+                    "Espera-se ';'"))
+
+            return res.sucesso(NumeroDeNos.VarAlocadoNo(
+                tok, expr, ))
+        
+        if res.erro:
+            return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini,
+                tok.pos_fim,
+                "Espera-se 'VAR, int, hex, id, '+', '-' or '('"
+            ))
+
+    def parser_bloco(self):
+        res = ParserResultado.ParserResultado()
+        tok = self.token_atual
+
+        if not tok.tipo_token(Lexer.TT_LBLOCO):
+            return res.falha(Erro.SintaxeInvalidaErro
+                             (tok.pos_ini, 
+                              tok.pos_fim, 
+                              "Bloco de comandos esperado (chave aberta '{')"))
+
+        self.avancar()
+
+        # Faz o parsing da sequência de comandos dentro do bloco
+        cmds = []
+        while tok.tipo_token != Lexer.TT_RBLOCO:
+            cmd = res.registro(parser_cmds(self))
+            if res.erro:
+                return res
+            cmds.append(cmd)
+
+
+        # Verifica se o token atual é a chave fechada '}'
+        if not tok.tipo_token(Lexer.TT_RBLOCO):
+            return res.falha(Erro.SintaxeInvalidaErro
+                             (tok.pos_ini, 
+                              tok.pos_fim, 
+                              "Bloco de comandos esperado (chave fechada '}')"))
+
+        # Avança para o próximo token após a chave fechada
+        self.avancar()
+
+        # Retorna o nó representando o bloco de comandos
+        return res.sucesso(NumeroDeNos.BlocoNo(cmds, 
+                                   tok.pos_ini, 
+                                   tok.pos_fim))
+
+
+    def parser_if(self):
+        res = ParserResultado.ParserResultado()
+        tok = self.token_atual
+
+        if not tok.E_igual(Lexer.TT_KEYWORD, 'IF'):
+            return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini, tok.pos_fim,
+                f"Espera-se 'IF'"
+            ))
+        
+        exp = res.registro(parser_expr(self))
+        if res.erro: return res
+
+        bloco = res.registro(parser_bloco(self))
+        if res.erro: return res
+
+        elses = res.registro(parser_elses(self))
+
+        return res.sucesso(IfNo(exp, bloco, elses, pos_ini, self.ver_atual().pos_fim))
+
+    def parser_expr(self):
+        res = ParserResultado.ParserResultado()
+        tok = self.token_atual
+
+        atom = res.registro(self.atom())
+        if res.erro: return res
+
+        while self.ver_atual().tipo_token in (TT_MAIS, TT_MENOS):
+            op_tok = self.ver_atual()
+            if not self.avanca():
+                return res.falha(SintaxeInvalidaErro(self.ver_atual().pos_ini, self.ver_atual().pos_fim, "Termo esperado"))
+            
+            termo_dir = res.registro(parser_termo(self))
+            if res.erro:
+                return res
+
+            termo = BinOpNo(termo, op_tok, termo_dir)
+
+        return res.sucesso(termo)
+    
+    def parser_elses(self):
+        res = ParserResultado()
+        pos_ini = self.ver_atual().pos_ini
+
+        if self.ver_atual().tipo_token != TT_ELSE:
+            return res.sucesso(None)
+
+        if not self.avanca():
+            return res.falha(SintaxeInvalidaErro(self.ver_atual().pos_ini, self.ver_atual().pos_fim, "Bloco 'else' esperado"))
+
+        bloco = res.registro(parser_bloco(self))
+        if res.erro:
+            return res
+
+        elses = res.registro(parser_elses(self))
+        if res.erro:
+            return res
+
+        return res.sucesso(ElsesNo(bloco, elses, pos_ini, self.ver_atual().pos_fim))
+
 
 #####################################################
 
