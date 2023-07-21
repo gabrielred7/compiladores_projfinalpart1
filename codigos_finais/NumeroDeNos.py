@@ -84,3 +84,18 @@ class ElseNo:
     def __init__(self, exp_condicional, bloco):
         self.exp_condicional = exp_condicional
         self.bloco = bloco
+
+class PrintNo:
+    def __init__(self, exp):
+        self.exp = exp
+
+    def __repr__(self):
+        return f'print {self.exp}'
+
+class WhileNo:
+    def __init__(self, exp, bloco):
+        self.exp = exp
+        self.bloco = bloco
+
+    def __repr__(self):
+        return f'while {self.exp} {self.bloco}'
