@@ -44,7 +44,8 @@ TT_RBLOCO     = 'RBLOCO'
 TT_SEMICOLON  = 'Tok_PontoEVirgula'
 
 
-KEYWORD = [ 'VAR', 'AND', 'OR', 'NOT', 'IF', 'ELIF', 'ELSE', 'PRINT']
+KEYWORD = [ 'var', 'and', 'or', 'not', 'if',
+            'elif', 'else', 'print', 'while']
 
 #Classe que implementa o analisador léxico. 
 class Lexer:

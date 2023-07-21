@@ -58,7 +58,7 @@ class Parser:
     def expr(self):
         res = ParserResultado.ParserResultado()
 
-        if self.token_atual.E_igual(Lexer.TT_KEYWORD, 'VAR'):
+        if self.token_atual.E_igual(Lexer.TT_KEYWORD, 'var'):
             res.registro_de_avanco()
             self.avancar()
 
@@ -86,7 +86,7 @@ class Parser:
                                                         expr))
 
         no = res.registro(self.bin_op(self.comp_expr, (
-            (Lexer.TT_KEYWORD, 'AND'), (Lexer.TT_KEYWORD, 'OR'))))
+            (Lexer.TT_KEYWORD, 'and'), (Lexer.TT_KEYWORD, 'or'))))
 
         if res.erro:
             return res.falha(Erro.SintaxeInvalidaErro(
@@ -232,7 +232,7 @@ class Parser:
         return self.bin_op(self.atom, (Lexer.TT_EXP, ), self.fator)
 
     def expr_Aritm(self):
-        return self.bin_op(self.fator, ( Lexer.TT_PLUS, Lexer.TT_MINUS))
+        return self.bin_op(self.termo, ( Lexer.TT_PLUS, Lexer.TT_MINUS))
     
     def comp_expr(self):
         res = ParserResultado.ParserResultado()
@@ -311,7 +311,7 @@ class Parser:
         res = ParserResultado.ParserResultado()
         tok = self.token_atual
 
-        if tok.E_igual(Lexer.TT_KEYWORD, 'VAR'):
+        if tok.E_igual(Lexer.TT_KEYWORD, 'var'):
             res.registro_de_avanco()
             self.avancar()
 
@@ -395,61 +395,109 @@ class Parser:
         res = ParserResultado.ParserResultado()
         tok = self.token_atual
 
-        if not tok.E_igual(Lexer.TT_KEYWORD, 'IF'):
+        if not tok.E_igual(Lexer.TT_KEYWORD, 'if'):
             return res.falha(Erro.SintaxeInvalidaErro(
                 tok.pos_ini, tok.pos_fim,
                 f"Espera-se 'IF'"
             ))
         
-        exp = res.registro(parser_expr(self))
+        condicao = res.registro(parser_expr(self))
         if res.erro: return res
 
         bloco = res.registro(parser_bloco(self))
         if res.erro: return res
-
+ 
         elses = res.registro(parser_elses(self))
+        if res.erro: return res
 
-        return res.sucesso(IfNo(exp, bloco, elses, pos_ini, self.ver_atual().pos_fim))
-
+        return res.sucesso(NumeroDeNos.IfNo(condicao, 
+                                            bloco, elses))
+    #Precisa botar funcall e unop exp
     def parser_expr(self):
         res = ParserResultado.ParserResultado()
         tok = self.token_atual
 
-        atom = res.registro(self.atom())
-        if res.erro: return res
+        if tok.tipo_token in (Lexer.TT_INT, Lexer.TT_HEXA):
+            res.registro_de_avanco()
+            self.avancar()
+            return res.sucesso(NumeroDeNos.NumeroDeNos(tok))
+        
+        elif tok.tipo_token == Lexer.TT_ID:
+            res.registro_de_avanco()
+            self.avancar()
+            return res.sucesso(NumeroDeNos.VarEntraNo(tok))
+        
+        elif tok.tipo_token == Lexer.TT_LPAREN:
+            res.registro_de_avanco()
+            self.avancar()
+            expr = res.registro(self.parser_expr())
+            if res.erro: return res
+            if self.token_atual.tipo_token == Lexer.TT_RPAREN:
+                res.registro_de_avanco()
+                self.avancar()
+                return res.sucesso(expr)
+            else:
+                return res.falha(Erro.SintaxeInvalidaErro(
+                    self.token_atual.pos_ini, self.token_atual.pos_fim,
+                    "Espera-se ')' "
+                ))
+        
+        ##Todo exp binop exp
 
-        while self.ver_atual().tipo_token in (TT_MAIS, TT_MENOS):
-            op_tok = self.ver_atual()
-            if not self.avanca():
-                return res.falha(SintaxeInvalidaErro(self.ver_atual().pos_ini, self.ver_atual().pos_fim, "Termo esperado"))
-            
-            termo_dir = res.registro(parser_termo(self))
-            if res.erro:
-                return res
-
-            termo = BinOpNo(termo, op_tok, termo_dir)
-
-        return res.sucesso(termo)
+        return res.falha(Erro.SintaxeInvalidaErro(
+            tok.pos_ini, tok.pos_fim,
+            "Espera-se uma expressão"
+        ))
     
     def parser_elses(self):
-        res = ParserResultado()
-        pos_ini = self.ver_atual().pos_ini
+        res = ParserResultado.ParserResultado()
+        tok = self.token_atual
 
-        if self.ver_atual().tipo_token != TT_ELSE:
-            return res.sucesso(None)
+        if tok == None:
+            return None
 
-        if not self.avanca():
-            return res.falha(SintaxeInvalidaErro(self.ver_atual().pos_ini, self.ver_atual().pos_fim, "Bloco 'else' esperado"))
+        elif not tok.E_igual(Lexer.TT_KEYWORD, 'else'):
+            return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini, tok.pos_fim,
+                f"Espera-se 'ELSE'"
+            ))
+        res.registro_de_avanco()
+        self.avancar()
 
-        bloco = res.registro(parser_bloco(self))
-        if res.erro:
-            return res
+        elifs = res.registro(self.parser_elif())
+        if res.erro: return res
 
-        elses = res.registro(parser_elses(self))
-        if res.erro:
-            return res
+        bloco = res.registro(self.parser_bloco())
+        if res.erro: return res
 
-        return res.sucesso(ElsesNo(bloco, elses, pos_ini, self.ver_atual().pos_fim))
+        elses = res.registro(self.parser_elses())
+        if res.erro: return res
+
+        return res.sucesso(NumeroDeNos.ElseNo(bloco, elses ))
+
+    def parser_elif(self):
+        res = ParserResultado.ParserResultado()
+        tok = self.token_atual
+
+        if not tok.E_igual(Lexer.TT_KEYWORD, 'elif'):
+            return res.falha(Erro.SintaxeInvalidaErro(
+                tok.pos_ini, tok.pos_fim,
+                f"Espera-se 'ELIF'"
+            ))
+        res.registro_de_avanco()
+        self.avancar()
+
+        # Parse da expressão condicional
+        exp_condicional = res.registro(parser_expr(self))
+        if res.erro:return res
+
+        bloco = res.registro(self.parser_bloco())
+        if res.erro:return res
+
+        elses = res.registro(self.parser_elses())
+        if res.erro:return res
+
+        return res.sucesso(NumeroDeNos.ElseNo(exp_condicional, bloco))
 
 
 #####################################################
