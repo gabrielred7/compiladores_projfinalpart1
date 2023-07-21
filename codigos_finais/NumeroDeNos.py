@@ -72,13 +72,18 @@ class IfNo:
         self.condicao = condicao
         self.bloco = bloco
         self.elses = elses
+
+    def __repr__(self):
+        return f'if {self.exp} {self.bloco} {self.elses}'
         
 #Class para bloco
 class BlocoNo:
-    def __init__(self, cmds, pos_ini, pos_fim):
-        self.cmds = cmds
-        self.pos_ini = pos_ini
-        self.pos_fim = pos_fim
+    def __init__(self, comandos):
+        self.comandos = comandos
+
+    def __repr__(self):
+        cmds_str = '\n'.join(str(cmd) for cmd in self.comandos)
+        return f'{{\n{cmds_str}\n}}'
 
 class ElseNo:
     def __init__(self, exp_condicional, bloco):
@@ -99,3 +104,49 @@ class WhileNo:
 
     def __repr__(self):
         return f'while {self.exp} {self.bloco}'
+    
+class FuncNo:
+    def __init__(self, nome, args, corpo, contexto):
+        self.nome = nome  
+        self.args = args  
+        self.corpo = corpo  
+        self.contexto = contexto  
+
+    def __repr__(self):
+        args_str = ', '.join(str(arg.valor_token) for arg in self.args)
+        return f"FuncNo(nome={self.nome.valor_token}, args=[{args_str}], corpo={self.corpo}, contexto={self.contexto})"
+
+class FuncDefNo:
+    def __init__(self, nome_func, args, bloco):
+        self.nome_func = nome_func
+        self.args = args
+        self.bloco = bloco
+
+    def __repr__(self):
+        args_str = ', '.join(str(arg) for arg in self.args)
+        return f'FuncDefNo({self.nome_func}, [{args_str}], {self.bloco})'
+
+class FunCallNo:
+    def __init__(self, nome_token, args_exps):
+        self.nome_token = nome_token
+        self.args_exps = args_exps
+
+        self.pos_ini = self.nome_token.pos_ini
+        self.pos_fim = self.args_exps[-1].pos_fim
+
+class AtribuicaoNo:
+    def __init__(self, var_nome, exp):
+        self.var_nome = var_nome
+        self.exp = exp
+
+    def __repr__(self):
+        return f'{self.var_nome} = {self.exp};'
+    
+# Classe para representar o comando de declaração de variável
+class DeclaracaoNo:
+    def __init__(self, var_nome, exp):
+        self.var_nome = var_nome
+        self.exp = exp
+
+    def __repr__(self):
+        return f'var {self.var_nome} = {self.exp};'

@@ -42,10 +42,11 @@ TT_MAIOREQQUE = 'Tok_MaiorEqQue'
 TT_LBLOCO     = 'LBLOCO'
 TT_RBLOCO     = 'RBLOCO'
 TT_SEMICOLON  = 'Tok_PontoEVirgula'
+TT_COMMA      = 'Tok_Virgula'
 
 
 KEYWORD = [ 'var', 'and', 'or', 'not', 'if',
-            'elif', 'else', 'print', 'while']
+            'elif', 'else', 'print', 'while', 'fun']
 
 #Classe que implementa o analisador léxico. 
 class Lexer:
@@ -182,6 +183,8 @@ class Lexer:
             return Token.Token(TT_RBLOCO, pos_ini=self.posicao)
         elif op == ';':
             return Token.Token(TT_SEMICOLON, pos_ini=self.posicao)
+        elif op == ',':
+            return Token.Token(TT_COMMA, pos_ini=self.posicao)
         elif op == '<':
             return self.menor_Que()
         elif op == '>':
@@ -206,8 +209,10 @@ class Lexer:
                 if erro: return [], erro
                 tokens.append(token)
 
-            elif self.char_atual in ('+', '-', '*', '/', '%', '^', '(',
-                                      ')', '{', '}',';' ,'=', '<', '>'):
+            elif self.char_atual in ('+', '-', '*', '/',
+                                      '%', '^', '(',
+                                      ')', '{', '}',';' 
+                                      ,'=', '<', '>', ','):
                 tokens.append(self.operadores())
                 self.avancar()
 

@@ -130,3 +130,14 @@ class Interpretador:
             return res.sucesso(else_valor)
         
         return res.sucesso(None)
+    
+    def visita_BlocoNo(self, no, contexto):
+        res = RTResultado.RTResultado()
+        resultado = None
+
+        for cmd in no.cmds:
+            resultado = res.registro(self.visita(cmd, contexto))
+            if res.erro:
+                return res
+
+        return res.sucesso(resultado)
