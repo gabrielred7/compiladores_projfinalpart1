@@ -60,16 +60,27 @@ class VarAlocadoNo:
 
 #class para nó if
 class IfNo:
+    """
     def __init__(self, cases, else_case):
         self.cases = cases
         self.else_case = else_case
 
         self.pos_ini = self.cases[0][0].pos_ini
         self.pos_fim = (self.else_case or self.cases[len(self.cases) - 1][0]).pos_fim
-
+    """
+    def __init__(self, condicao, bloco, elses=None):
+        self.condicao = condicao
+        self.bloco = bloco
+        self.elses = elses
+        
 #Class para bloco
 class BlocoNo:
     def __init__(self, cmds, pos_ini, pos_fim):
         self.cmds = cmds
         self.pos_ini = pos_ini
         self.pos_fim = pos_fim
+
+class ElseNo:
+    def __init__(self, exp_condicional, bloco):
+        self.exp_condicional = exp_condicional
+        self.bloco = bloco
