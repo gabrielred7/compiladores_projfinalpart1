@@ -28,16 +28,16 @@ def run(texto):
     # Gera a AST
     parser = Parser.Parser(tokens)
     ast = parser.parse()
-    if ast.erro: return None, ast.erro
-
+    #if ast.erro: return None, ast.erro
+    """
     #Gera o interpretador
     interpretador = Interpretador.Interpretador()
     contexto = Contexto.Contexto('<programa>')
     contexto.tabela_simbolo = tabela_Simbolos_Global
     resultado = interpretador.visita(ast.no, contexto)
-
-    return resultado.valor, resultado.erro
-    #return ast.no, ast.erro
+    """
+    #return resultado.valor, resultado.erro
+    return ast.no, ast.erro
     #return tokens, erros
 def main():
 
