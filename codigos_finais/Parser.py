@@ -360,15 +360,23 @@ class Parser:
             if res.erro: return res
             return res.sucesso(cmd)
         elif self.token_atual.tipo_token == Lexer.TT_ID:
-            cmd = res.registro(self.parser_atribuicao())
-            if res.erro: return res
-            return res.sucesso(cmd)
+            res.registro_de_avanco()
+            self.avancar()
+            if self.token_atual.tipo_token == Lexer.TT_EQ:
+                cmd = res.registro(self.parser_atribuicao())
+                if res.erro: return res
+                return res.sucesso(cmd)
+            elif self.token_atual.tipo_token == Lexer.TT_LPAREN:
+                cmd = res.registro(self.parser_call())
+                if res.erro: return res
+                return res.sucesso(cmd)
         elif self.token_atual.E_igual(Lexer.TT_KEYWORD, 'if'):
             res.registro(self.parser_if())
         elif self.token_atual.E_igual(Lexer.TT_KEYWORD, 'while'):
             cmd = res.registro(self.parser_while())
             if res.erro: return res
             return res.sucesso(cmd)
+        
         else:
             return res
 
@@ -556,7 +564,7 @@ class Parser:
     #Cmd -> NOME '=' Exp;          # atribuição
     def parser_atribuicao(self):
         res = ParserResultado.ParserResultado()
-        
+        """
         res.registro_de_avanco()
         self.avancar()
 
@@ -566,7 +574,7 @@ class Parser:
                     self.token_atual.pos_fim,
                     "Espera-se '='"
                 ))
-        
+        """
         res.registro_de_avanco()
         self.avancar()
         expr = res.registro(self.parser_expr())
@@ -602,6 +610,20 @@ class Parser:
             exp, bloco))
         
 #####################################################
+    #FunCall -> NOME '(' Exps ')'
+    def parser_call(self):
+        res = ParserResultado.ParserResultado()
+        calls = []
+
+        if self.token_atual.tipo_token == Lexer.TT_RPAREN:
+            return res.sucesso(calls)
+        
+        calls.append(res.registro(self.parser_exps))
+
+        if self.token_atual.tipo_token == Lexer.TT_RPAREN:
+            return res.sucesso(calls)
+
+
 
 #Checa os tokens que podem ser aceitos
     def bin_op(self, func_a, ops, func_b=None):

@@ -138,14 +138,14 @@ class FunCallNo:
     def __init__(self, no_para_chamar, no_args):
         self.no_para_chamar = no_para_chamar
         self.no_args = no_args
-
+        """
         self.pos_ini = self.no_para_chamar.pos_ini
         self.pos_fim = self.no_args[-1].pos_fim
         if len(self.no_args) > 0:
             self.pos_fim = self.no_args[len(self.no_args) - 1].pos_fim
         else:
             self.pos_fim = self.no_para_chamar.pos_fim
-
+        """
 class AtribuicaoNo:
     def __init__(self, var_nome, exp):
         self.var_nome = var_nome
