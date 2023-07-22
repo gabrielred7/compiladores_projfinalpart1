@@ -27,7 +27,7 @@ def run(texto):
 
     # Gera a AST
     parser = Parser.Parser(tokens)
-    ast = parser.parse()
+    ast = parser.parser_programa()
     #if ast.erro: return None, ast.erro
     """
     #Gera o interpretador

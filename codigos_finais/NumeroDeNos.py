@@ -117,15 +117,20 @@ class FuncNo:
         return f"FuncNo(nome={self.nome.valor_token}, args=[{args_str}], corpo={self.corpo}, contexto={self.contexto})"
 
 class FuncDefNo:
-    def __init__(self, nome_func, args, bloco):
-        self.nome_func = nome_func
-        self.args = args
-        self.bloco = bloco
+    def __init__(self, var_nome_tok, arg_nome_toks, corpo_no):
+        self.var_nome_tok = var_nome_tok
+        self.arg_nome_toks = arg_nome_toks
+        self.corpo_no = corpo_no
 
-    def __repr__(self):
-        args_str = ', '.join(str(arg) for arg in self.args)
-        return f'FuncDefNo({self.nome_func}, [{args_str}], {self.bloco})'
+        if self.var_nome_tok:
+            self.pos_start = self.var_nome_tok.pos_start
+        elif len(self.arg_nome_toks) > 0:
+            self.pos_start = self.arg_nome_toks[0].pos_start
+        else:
+            self.pos_start = self.corpo_no.pos_start
 
+        self.pos_end = self.corpo_no.pos_end
+                
 class FunCallNo:
     def __init__(self, nome_token, args_exps):
         self.nome_token = nome_token
@@ -150,3 +155,16 @@ class DeclaracaoNo:
 
     def __repr__(self):
         return f'var {self.var_nome} = {self.exp};'
+    
+class ListaDeFuncoes:
+    def __init__(self):
+        self.funcoes = []
+
+    def adicionar_funcao(self, func):
+        self.funcoes.append(func)
+
+    def get_funcoes(self):
+        return self.funcoes
+
+    def __repr__(self):
+        return f"ListaDeFuncoes({self.funcoes})"
