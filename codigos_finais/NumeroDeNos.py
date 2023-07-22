@@ -3,6 +3,8 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
 
+#Nos da arvore
+
 #classe No que pega o token do número correspondente, int ou hexa
 class NumeroDeNos:
     def __init__(self, tok):
@@ -121,23 +123,28 @@ class FuncDefNo:
         self.var_nome_tok = var_nome_tok
         self.arg_nome_toks = arg_nome_toks
         self.corpo_no = corpo_no
-
+        """
         if self.var_nome_tok:
             self.pos_ini = self.var_nome_tok.pos_ini
         elif len(self.arg_nome_toks) > 0:
             self.pos_ini = self.arg_nome_toks[0].pos_ini
         else:
-            self.pos_ini = self.corpo_no.pos_ini
+           self.pos_ini = self.corpo_no.pos_ini
 
         self.pos_fim = self.corpo_no.pos_fim
+        """
                 
 class FunCallNo:
-    def __init__(self, nome_token, args_exps):
-        self.nome_token = nome_token
-        self.args_exps = args_exps
+    def __init__(self, no_para_chamar, no_args):
+        self.no_para_chamar = no_para_chamar
+        self.no_args = no_args
 
-        self.pos_ini = self.nome_token.pos_ini
-        self.pos_fim = self.args_exps[-1].pos_fim
+        self.pos_ini = self.no_para_chamar.pos_ini
+        self.pos_fim = self.no_args[-1].pos_fim
+        if len(self.no_args) > 0:
+            self.pos_fim = self.no_args[len(self.no_args) - 1].pos_fim
+        else:
+            self.pos_fim = self.no_para_chamar.pos_fim
 
 class AtribuicaoNo:
     def __init__(self, var_nome, exp):

@@ -43,6 +43,7 @@ TT_LBLOCO     = 'LBLOCO'
 TT_RBLOCO     = 'RBLOCO'
 TT_SEMICOLON  = 'Tok_PontoEVirgula'
 TT_COMMA      = 'Tok_Virgula'
+TT_NEWLINE    = 'Tok_Nova_linha'
 
 
 KEYWORD = [ 'var', 'and', 'or', 'not', 'if',
@@ -196,6 +197,10 @@ class Lexer:
 
         while self.char_atual is not None:
             if self.char_atual.isspace():
+                self.avancar()
+
+            elif self.char_atual == "\n":
+                tokens.append(Token.Token(TT_NEWLINE, pos_ini=self.pos))
                 self.avancar()
 
             elif self.char_atual in DIGITOS:

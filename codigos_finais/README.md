@@ -3,27 +3,52 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
 
-gramatica:   
-Expressão: E  
-    E -> num
-    E -> ( E )
-    E -> + E E
-    E -> - E E
-    E -> * E E
-    E -> / E E
-    E -> ^ E E
 
-Se você conseguir, implemente expressões infixadas,
-com o operador entre as expressões. A^B, (A+B)*C, etc.
-   * Os operadores + - * / devem ser associativos à esquerda
-   * O operador ^, de exponenciação, deve ser associativo à direita
-   * Os níveis de precedência devem ser:
+#Gramática de Arara:
+##Aproveitando parte do código e parte da gramática do trabalho 3   
+Programa -> Funcs
+   
+    # Lista de funções (zero ou mais, sem separador)
+    Funcs -> {FuncDef}
+   
+    # Lista de nomes (zero ou mais, separado por vírgula)
+    Args -> 
+    Args -> NOME {',' NOME}
+   
+    # Lista de expressões (zero ou mais, separadas por vírgula)
+    Exps -> 
+    Exps -> Exp {',' Exp} 
+   
+    # Lista de comandos (zero ou mais, sem separador)
+    Cmds -> {Cmd}   
+   
+    # Função
+    FuncDef -> 'fun' NOME '(' Args ')' Bloco
+   
+    # Comandos
+    Bloco -> '{' Cmds '}'
+    
+    Cmd -> print Exp ';'
+    Cmd -> var NOME '=' Exp ';'   # declaração
+    Cmd -> NOME '=' Exp;          # atribuição
+    Cmd -> while Exp Bloco
+    Cmd -> if Exp Bloco Elses
+    Cmd -> FunCall ';'
+    
+    Elses ->
+    Elses -> else Bloco
+    Elses -> elif Exp Bloco Elses
 
-        1. ^        
-        2. * e /
-        3. + e -
+    Exp -> NUMERO
+    Exp -> NOME
+    Exp -> '(' Exp ')'
+    Exp -> FunCall
+    Exp -> UNOP Exp
+    Exp -> Exp BINOP Exp
+   
+    FunCall -> NOME '(' Exps ')'
 
-expr  : KEYWORD:VAR ID EQ expr
+expr : 
         :comp-expr ((KEYWORD:AND|KEYWORD:OR) comp-expr)*
 
 comp-expr : NOT comp-expr
@@ -41,9 +66,27 @@ pot   : atom (pot fator)^
 
 atom  :INT|HEX|ID
       :LPAREN expr RPAREN
-      : if-expr
+      
 
-CMDS:
-if-expr : KEYWORD: IF expr { CMDS }
-         KEYWORD: ELIF expr { CMDS }*
-         KEYWORD: ELSE { CMDS}?
+Os operadores unários são:
+
+   - Negação aritmética: '-'
+   - Negação booleana: not
+
+Os operadores binários são:
+
+   * aritméticos: + - * / ^
+   * comparações: == != < > <= >=
+   * booleanos: and or
+   
+A precedência dos operadores deve ser:
+
+   - or
+   - and
+   - comparações
+   - soma e subtração
+   - multiplicação e divisão
+   - operadores unários (negação)
+   - exponenciação
+
+Todos os operadores binários devem ser associativos à esquerda, exceto a exponenciação que deve ser associativa à direita.
