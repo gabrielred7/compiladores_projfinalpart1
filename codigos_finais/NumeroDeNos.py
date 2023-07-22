@@ -123,13 +123,13 @@ class FuncDefNo:
         self.corpo_no = corpo_no
 
         if self.var_nome_tok:
-            self.pos_start = self.var_nome_tok.pos_start
+            self.pos_ini = self.var_nome_tok.pos_ini
         elif len(self.arg_nome_toks) > 0:
-            self.pos_start = self.arg_nome_toks[0].pos_start
+            self.pos_ini = self.arg_nome_toks[0].pos_ini
         else:
-            self.pos_start = self.corpo_no.pos_start
+            self.pos_ini = self.corpo_no.pos_ini
 
-        self.pos_end = self.corpo_no.pos_end
+        self.pos_fim = self.corpo_no.pos_fim
                 
 class FunCallNo:
     def __init__(self, nome_token, args_exps):

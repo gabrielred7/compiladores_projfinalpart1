@@ -77,8 +77,9 @@ class Parser:
 
     #FuncDef -> 'fun' NOME '(' Args ')' Bloco
     def parser_funcdef(self):
-        print("entrei na funcdef")
+        
         res = ParserResultado.ParserResultado()
+        arg_nomes_toks = []
         """
         if not self.token_atual.E_igual(Lexer.TT_KEYWORD, 'fun'):
             return res.falha(Erro.SintaxeInvalidaErro(
@@ -87,7 +88,7 @@ class Parser:
         """
         res.registro_de_avanco()
         self.avancar()
-
+        
         if self.token_atual.tipo_token == Lexer.TT_ID:         
             nome_func = self.token_atual
             res.registro_de_avanco()
@@ -97,27 +98,37 @@ class Parser:
                     self.token_atual.pos_ini, 
                     self.token_atual.pos_fim, 
                     "'(' esperado"))
+
+            res.registro_de_avanco()
+            self.avancar()
+
+            if self.token_atual == Lexer.TT_RPAREN:
+                arg_nomes_toks = None
+                res.registro_de_avanco()
+                self.avancar()
+            else:
+                
+                arg_nomes_toks = self.parser_args()
+                if arg_nomes_toks.erro:return arg_nomes_toks
+                
+                
         
-        res.registro_de_avanco()
-        self.avancar()
-        arg_nomes_toks = self.parser_bloco()
-        if arg_nomes_toks.erro:return arg_nomes_toks
-
-        res.registro_de_avanco()
-        self.avancar()
-
         if self.token_atual.tipo_token != Lexer.TT_RPAREN:
                 return res.falha(Erro.SintaxeInvalidaErro(
                     self.token_atual.pos_ini, 
                     self.token_atual.pos_fim, 
                     "')' esperado"))
         
+        
         res.registro_de_avanco()
         self.avancar()
 
+        blocos = self.parser_bloco()
+        if blocos.erro:return blocos
+
         return res.sucesso(NumeroDeNos.FuncDefNo(
             nome_func, 
-            arg_nomes_toks, arg_nomes_toks))
+            arg_nomes_toks, blocos))
 
     """
      # Lista de nomes (zero ou mais, separado por vírgula)
@@ -129,7 +140,8 @@ class Parser:
         args = []
 
         if self.token_atual.tipo_token == Lexer.TT_ID:
-            args.append(self.token_atual.valor_token)
+            
+            args.append(self.token_atual)
             res.registro_de_avanco()
             self.avancar()
 
@@ -145,8 +157,44 @@ class Parser:
                 args.append(self.token_atual)
                 res.registro_de_avanco()
                 self.avancar()
+           
         
         return res.sucesso(args)
+    
+    #Bloco -> '{' Cmds '}'
+    def parser_bloco(self):
+        res = ParserResultado.ParserResultado()
+
+        if self.token_atual.tipo_token != Lexer.TT_LBLOCO:
+            return res.falha(Erro.SintaxeInvalidaErro
+                             (self.token_atual.pos_ini, 
+                              self.token_atual.pos_fim, 
+                              "Bloco de comandos esperado (chave aberta '{')"))
+
+        self.avancar()
+
+        # Faz o parsing da sequência de comandos dentro do bloco
+        cmds = []
+        while self.token_atual.tipo_token != Lexer.TT_RBLOCO:
+            cmd = res.registro(self.parser_cmds())
+            if res.erro:
+                return res
+            cmds.append(cmd)
+
+
+        # Verifica se o token atual é a chave fechada '}'
+        if self.token_atual.tipo_token != Lexer.TT_RBLOCO:
+            return res.falha(Erro.SintaxeInvalidaErro
+                             (self.token_atual.pos_ini, 
+                              self.token_atual.pos_fim, 
+                              "Bloco de comandos esperado (chave fechada '}')"))
+
+        # Avança para o próximo token após a chave fechada
+        self.avancar()
+
+        # Retorna o nó representando o bloco de comandos
+        return res.sucesso(NumeroDeNos.BlocoNo(cmds))
+    
     """
     # Lista de expressões (zero ou mais, separadas por vírgula)
     Exps -> 
@@ -454,9 +502,7 @@ class Parser:
 
         cmds.append(res.no)
 
-        return res.sucesso(NumeroDeNos.BlocoNo(cmds, 
-                                               self.token_atual.pos_ini, 
-                                               self.token_atual.pos_fim))
+        return res.sucesso(NumeroDeNos.BlocoNo(cmds))
 
     #Cmd -> print Exp ';'
     def parser_print(self):
@@ -526,39 +572,6 @@ class Parser:
                 tok.pos_fim,
                 "Espera-se var ID = EXP ;"
             ))
-    #Bloco -> '{' Cmds '}'
-    def parser_bloco(self):
-        res = ParserResultado.ParserResultado()
-
-        if self.token_atual.tipo_token != Lexer.TT_LBLOCO:
-            return res.falha(Erro.SintaxeInvalidaErro
-                             (self.token_atual.pos_ini, 
-                              self.token_atual.pos_fim, 
-                              "Bloco de comandos esperado (chave aberta '{')"))
-
-        self.avancar()
-
-        # Faz o parsing da sequência de comandos dentro do bloco
-        cmds = []
-        while self.token_atual.tipo_token != Lexer.TT_RBLOCO:
-            cmd = res.registro(self.parser_cmds())
-            if res.erro:
-                return res
-            cmds.append(cmd)
-
-
-        # Verifica se o token atual é a chave fechada '}'
-        if self.token_atual.tipo_token != Lexer.TT_RBLOCO:
-            return res.falha(Erro.SintaxeInvalidaErro
-                             (self.token_atual.pos_ini, 
-                              self.token_atual.pos_fim, 
-                              "Bloco de comandos esperado (chave fechada '}')"))
-
-        # Avança para o próximo token após a chave fechada
-        self.avancar()
-
-        # Retorna o nó representando o bloco de comandos
-        return res.sucesso(NumeroDeNos.BlocoNo(cmds))
 
     #Cmd -> if Exp Bloco Elses
     def parser_if(self):
