@@ -7,10 +7,12 @@ class ParserResultado:
     def __init__(self):
         self.erro = None
         self.no = None
+        self.ultimo_registro_De_avanco = 0
         self.count_avanca = 0
 
     #Registro para avanços
     def registro_de_avanco(self):
+        self.ultimo_registro_De_avanco += 1
         self.count_avanca += 1
 
     ##Checa se tem erro no resultado. Se sim,
