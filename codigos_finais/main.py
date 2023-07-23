@@ -8,6 +8,9 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 
 import Lexer
 import Parser
+import ParserResultado
+import CodeGenerator  # Importe o módulo CodeGenerator
+import json
 
 def run(texto):
     # Generate tokens
@@ -23,11 +26,25 @@ def run(texto):
 
 
 def main():
-    while True:
-        texto = input()
-        resultado, erros = run(texto)
-        if erros: print(erros.as_string())
-        elif resultado: print(resultado)
+    texto = input()
+    res, erros = run(texto)
+    if erros: 
+        print(erros.as_string())
+    elif res:
+        # Cria a instância do CodeGenerator
+        code_generator = CodeGenerator.CodeGenerator()
 
+        # Gera as instruções de bytecode a partir da AST
+        code_generator.generate(res)
+
+        # Obtém as instruções de bytecode
+        instructions = code_generator.get_instructions()
+
+        # Salva as instruções em um arquivo usando a função serialize_instructions
+        with open('programa.arac', 'w') as file:
+            json.dump(instructions, file)
+
+        # Imprime as instruções na tela (opcional)
+        print(instructions)
 
 main()
