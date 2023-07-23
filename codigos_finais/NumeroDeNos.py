@@ -10,6 +10,7 @@ class NumeroDeNos:
     def __init__(self, tok):
         self.tok = tok
 
+        #Acessando a pos do no
         self.pos_ini = self.tok.pos_ini
         self.pos_fim = self.tok.pos_fim
     
@@ -22,7 +23,7 @@ class BinOpNo:
         self.no_esq = no_esq
         self.op_tok = op_tok
         self.no_dir = no_dir
-
+        #Acessando a pos do no
         self.pos_ini = self.no_esq.pos_ini
         self.pos_fim = self.no_dir.pos_fim
 
@@ -34,7 +35,7 @@ class UnaryOpNo:
     def __init__(self, op_tok, no):
         self.op_tok = op_tok
         self.no = no
-
+        #Acessando a pos do no
         self.pos_ini = self.op_tok.pos_ini
         self.pos_fim = self.op_tok.pos_fim
 
@@ -42,20 +43,20 @@ class UnaryOpNo:
         return f'({self.op_tok}, {self.no})'
     
 #classes para nós identificadores
-
+#No da variavel que está sendo chamada
 class VarEntraNo:
     def __init__(self, var_nome_token):
         self.var_nome_token = var_nome_token
-
+        #Acessando a pos do no
         self.pos_ini = self.var_nome_token.pos_ini
         self.pos_fim = self.var_nome_token.pos_fim
 
-
+#No da variavel que foi alocada
 class VarAlocadoNo:
     def __init__(self, var_nome_token, valor_no):
         self.var_nome_token = var_nome_token
         self.valor_no = valor_no
-
+        #Acessando a pos do no
         self.pos_ini = self.var_nome_token.pos_ini
         self.pos_fim = self.valor_no.pos_fim
 
