@@ -3,6 +3,15 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 */
 
+/******************************************************
+ ********** O compilador Arara->Araque ****************
+
+ * Este é o Assembler que lê um arquivo de entrada do
+ * código da linguagem Arara e gera o bytecode para 
+ * exceturar na máquina virtual.
+
+*******************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +21,12 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
 #define MAX_STACK_SIZE 1000
 #define MAX_LABELS 200
 
+/**
+ * OpCode que representa os diferentes tipos de 
+ * intstruções do bytecode.
+ * 
+ * Obs: Código quebrado reaproveitado do trab 4.
+*/
 typedef enum {
     EXIT,
     NUMBER,
@@ -24,25 +39,48 @@ typedef enum {
     JUMP, JUMP_TRUE, JUMP_FALSE
 } OpCode;
 
+/**
+ * Estrutura contém uma instância de opcode e um valor
+ * int. É usada para representar as instruções individuais
+ * no bytecode.
+*/
 typedef struct {
     OpCode op;
     int valor;
 } Instruction;
 
+/**
+ * Estrutura usada para armazenar labels encontradas no
+ * código de entrada. Cada label é associado a um nome
+ * e a um end no bytecode.
+*/
 typedef struct {
     char label[4];
     int endereco;
 } Label;
 
+/**
+ * Essas vars globais são usadas para armazenar os labels 
+ * encontrados no código e no total de labels.
+*/
 Label labels[MAX_LABELS];
 int numLabels = 0;
 
+/**
+ * Essa função é usada para adicionar um label a lista de
+ * labels
+*/
 void adicionarLabel(const char* label, int endereco) {
     Label novoLabel;
     strcpy(novoLabel.label, label); // esse metodo copia a string apontada pela origem para o destino.
     novoLabel.endereco = endereco;
     labels[numLabels++] = novoLabel;
 }
+
+/**
+ * Essa função é usada para encontrar o end do label na lista
+ * de labels
+*/
 
 int encontrarLabel(const char* label) {
     for (int i = 0; i < numLabels; i++) {
@@ -52,6 +90,11 @@ int encontrarLabel(const char* label) {
     }
     return -1; // Label nao encontrado
 }
+
+/**
+ * Essa função é o montador. Ela lê o arq de entrada e gera
+ * o bytecode e armazena ele no array programa.
+*/
 
 void assembler(const char* arquivo, Instruction* program, int* tamanhoPrograma) {
     //abri o arquivo
