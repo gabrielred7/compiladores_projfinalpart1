@@ -1,4 +1,4 @@
-# *Trabalho final* 
+# **Trabalho final** 
 ## compilador completo para a linguagem Arara
 
 ## Problemas:
