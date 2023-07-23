@@ -2,20 +2,32 @@
 Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
-
+#Imports
 import Token
 import Posicao
 import Erro
 import string
 
 #CONSTANTES
+# Definição de constantes utilizadas para classificar
+# caracteres
 DIGITOS = '0123456789'
 HEXA    = '0123456789ABCDEF'
 LETRAS  = string.ascii_letters #Todas as letras
 LETRAS_DIGITOS = LETRAS + DIGITOS
 
-#TOKENS
+##########################################################
+##########################################################
+#
+# TOKENS
+#
+##########################################################
+##########################################################
 
+# Definição dos tipos de tokens que podem ser encontrados
+# na linguagem Arara
+#Obs:Alguns Tokens não foram usados porque esse código foi
+#reutilizado do trabalho 3
 TT_INT		  = 'TokNumber'
 TT_PLUS       = 'TokOp OpSum'
 TT_MINUS      = 'TokOp OpSub'
@@ -49,8 +61,21 @@ TT_NEWLINE    = 'Tok_Nova_linha'
 KEYWORD = [ 'var', 'and', 'or', 'not', 'if',
             'elif', 'else', 'print', 'while', 'fun']
 
-#Classe que implementa o analisador léxico. 
+##########################################################
+##########################################################
+#
+# LEXER
+#
+##########################################################
+##########################################################
+"""
+Classe que implementa o analisador léxico. O analisador
+léxico é essencial para o processo de compilação, 
+pois é responsável por identificar os tokens, 
+que são utilizados nas etapas seguintes do compilador.
+""" 
 class Lexer:
+    #Construtor
     def __init__(self, text):
         self.entrada = text
         self.posicao = Posicao.Posicao(-1, 0, -1, text)
@@ -82,7 +107,13 @@ class Lexer:
                     if self.char_atual == '/':
                         return Token.Token(TT_COM2, pos_ini=self.posicao)
         self.avancar()
-
+##########################################################
+##########################################################
+#
+# MÉTODOS RESPONSÁVEIS POR RECONHECER OS DEMAIS TOKENS
+#
+##########################################################
+##########################################################
     def decimal(self):
         numero = ''
         pos_ini = self.posicao.copia()
@@ -191,7 +222,18 @@ class Lexer:
         elif op == '>':
             return self.maior_Que()
 
-    # Lê o caractere atual e retorna o proximo token
+##########################################################
+##########################################################
+#
+# MÉTODO NEXT
+#
+##########################################################
+##########################################################
+"""
+Ele itera através dos caracteres da entrada e 
+chama os métodos apropriados para identificar
+cada token. Ao final, a lista de tokens é retornada.
+"""
     def next(self):
         tokens = []
 
