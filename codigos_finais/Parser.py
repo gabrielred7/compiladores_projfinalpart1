@@ -3,12 +3,20 @@ Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 """
 
-
+#Imports
 import Lexer
 import ParserResultado
 import NumeroDeNos
 import Erro
 
+
+##########################################################
+##########################################################
+#
+# PARSER
+#
+##########################################################
+##########################################################
 
 #Classe que implementa o parser
 class Parser:
@@ -16,17 +24,23 @@ class Parser:
         self.tokens = tokens
         self.tok_idx = -1
         self.avancar()
-
+    # Avança para o próximo token e atualiza o token atual
     def avancar(self, ):
         self.tok_idx += 1
         if self.tok_idx < len(self.tokens):
             self.token_atual = self.tokens[self.tok_idx]
         return self.token_atual
     
-    #Programa -> Funcs
+    """
+    O método parser_programa é o método que inicia a analise 
+    sintática do programa. Ele chama o método parser_funcs()
+    para analisar a definição das funções do programa.
+    Se tudo estiver certo, ele retornar a AST
+    """
+    # Regra principal da gramática: Programa -> Funcs
     def parser_programa(self):
         res = self.parser_funcs()
-
+        # Verifica se não ocorreu alguma falha
         if not res.erro and self.token_atual.tipo_token != Lexer.TT_EOF:
             return res.falha(Erro.SintaxeInvalidaErro(
                 self.token_atual.pos_ini, self.token_atual.pos_fim, 
@@ -35,17 +49,33 @@ class Parser:
         return res
 
 
-#################################################
-#  Metodos das regras da gramática:
+##########################################################
+##########################################################
+#
+# METODOS DAS REGRAS DA GRAMÁTICA
+#
+#Esses são os métodos do analisador sintático. Eles são
+#responsáveis por criar a árvore.  
+##########################################################
+##########################################################
+"""
     # Lista de funções (zero ou mais, sem separador)
     #Funcs -> {FuncDef}
+
+    Esse método analisa a lista de funções no programa. Ele
+    le os tokens até encontrar uma chamada de função. Ai 
+    chama o método parser_funcdef() para analisar a função.
+    Ele fica no loop até achar o final do arquivo. No final
+    ele retorna a lista com cada função.
+"""
     def parser_funcs(self):
         res = ParserResultado.ParserResultado()
         funcs = []
         
         while self.token_atual.tipo_token != Lexer.TT_EOF:
-            
+            # Verifica se o token atual = fun
             if self.token_atual.E_igual(Lexer.TT_KEYWORD, 'fun'):
+                # Chama o parser para a função
                 funcs.append(res.registro(self.parser_funcdef()))
                 if res.erro:
                     return res.falha(Erro.SintaxeInvalidaErro(
@@ -56,6 +86,8 @@ class Parser:
             
                 
             else:
+                # Se o token atual != fun ,
+                # erro de sintaxe
                 return res.falha(Erro.SintaxeInvalidaErro(
                     self.token_atual.pos_ini,
                     self.token_atual.pos_fim,
@@ -64,16 +96,23 @@ class Parser:
             
         return res.sucesso(funcs)
         
-
+    """
+    Regra:
     #FuncDef -> 'fun' NOME '(' Args ')' Bloco
+    #Só entra nessa função se o token atual for 'fun'
+
+    Esse método analisa a regra da função. Retorna um nó de
+    função. 
+    """
     def parser_funcdef(self):
         
         res = ParserResultado.ParserResultado()
         arg_nomes_toks = []
         cmds_do_bloco = []
-        
+        #Avança
         res.registro_de_avanco()
         self.avancar()
+        #Vê se o token atual é um ID (NOME)
         if  self.token_atual.tipo_token != Lexer.TT_ID:
             return res.falha(Erro.SintaxeInvalidaErro(
                     self.token_atual.pos_ini, 
@@ -125,9 +164,13 @@ class Parser:
             arg_nomes_toks, cmds_do_bloco.no))
 
     """
+    Regra:
      # Lista de nomes (zero ou mais, separado por vírgula)
         Args -> 
         Args -> NOME {',' NOME}
+
+    Esse método analisa uma lista de args e retorna uma lista
+    contendo os tokens dos nomes do args.
     """
     def parser_args(self):
         res = ParserResultado.ParserResultado()
@@ -154,8 +197,13 @@ class Parser:
            
         
         return res.sucesso(args)
-    
+    """
     #Bloco -> '{' Cmds '}'
+
+    Este método analisa um bloco de comandos. Ele reconhece
+    os cmds até o fechamento de chaves. Retorna uma lista 
+    de nós dos comandos no bloco.
+    """
     def parser_bloco(self):
         res = ParserResultado.ParserResultado()
         cmds = []
@@ -200,6 +248,11 @@ class Parser:
     # Lista de expressões (zero ou mais, separadas por vírgula)
     Exps -> 
     Exps -> Exp {',' Exp} 
+
+    Este método analisa uma lista de expressões. Retorna
+    uma lista de nós de expressões.
+
+    OBS: Método quebrado
     """
     def parser_exps(self):
         res = ParserResultado.ParserResultado()
@@ -225,7 +278,14 @@ class Parser:
 
         return res.sucesso(exps)
 
-
+##########################################################
+##########################################################
+#Os métodos fator, termo, atom, pot, expr_aritm, comp_expr
+#são usados para construir as expressões aritméticas e 
+#lógicas. Eles lidam com ops unários, binários, nums, etc.
+#Eu reaprovetei eles do trabalho 3.
+##########################################################
+##########################################################
     def fator(self):
         res = ParserResultado.ParserResultado()
 
@@ -309,6 +369,9 @@ class Parser:
             ))
         
         return res.sucesso(no)
+
+############################################################
+############################################################
     
     """"
     Cmd -> print Exp ';'
@@ -317,6 +380,9 @@ class Parser:
     Cmd -> while Exp Bloco
     Cmd -> if Exp Bloco Elses
     Cmd -> FunCall ';'
+
+    Este método analisa os comandos. Reconhe o print, 
+    atribuição, declaração, if e while.
     """   
 
     def parser_cmds(self):
@@ -363,6 +429,14 @@ class Parser:
 
         return res.sucesso(cmd)
 
+############################################################
+############################################################
+# Os métodos print, dec de variável, atribuição, if, else,
+#elif e chamada de função (Call)
+#
+#OBS: IF, ELSE, ELIF, WHILE E CALL QUEBRADOS
+############################################################
+############################################################
     #Cmd -> print Exp ';'
     def parser_print(self):
         res = ParserResultado.ParserResultado()
@@ -561,7 +635,7 @@ class Parser:
         return res.sucesso(NumeroDeNos.WhileNo(
             exp, bloco))
         
-#####################################################
+
     #FunCall -> NOME '(' Exps ')'
     def parser_call(self):
         res = ParserResultado.ParserResultado()
@@ -575,9 +649,12 @@ class Parser:
         if self.token_atual.tipo_token == Lexer.TT_RPAREN:
             return res.sucesso(calls)
 
+############################################################
+############################################################
 
-
-#Checa os tokens que podem ser aceitos
+"""
+Este método é usado para as expressões binárias. 
+"""
     def bin_op(self, func_a, ops, func_b=None):
         if func_b == None:
             func_b = func_a
