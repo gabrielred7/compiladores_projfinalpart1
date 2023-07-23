@@ -2,12 +2,22 @@
 Nomes: Gabriel Almeida Mendes - DRE: 117204959
        Marcus Vinicius Torres de Oliveira - DRE: 118142223
 */
+
+/**********************************************************
+ * ***************** Maquina Virtual **********************
+ * 
+ * Executa um bytecode gerado e printa
+ * Obs: Quebrado
+***********************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
 #define MAX_STACK_SIZE 1000
-
+/**
+ * Define as operações que a máquina executa.
+*/
 typedef enum {
     EXIT,
     NUMBER,
@@ -20,10 +30,28 @@ typedef enum {
     JUMP, JUMP_TRUE, JUMP_FALSE
 } OpCode;
 
+/**
+ * Essa struct é usada para armazenar cada instrução do 
+ * bytecode.
+*/
 typedef struct {
     OpCode op;
     int value;
 } Instruction;
+
+/**
+ * Executa o bytecode. Ela recebe um ponteiro para o bytecode
+ * e o tamanho do bytecode em número de elementos (inteiros) 
+ * como parâmetros. 
+ * 
+ * A máquina virtual possui uma pilha para armazenar os valores 
+ * durante a execução, um contador de programa que mantém o 
+ * índice atual da instrução sendo executada e um índice que 
+ * rastreia o topo da pilha. A função itera sobre as
+ * instruções do bytecode usando um loop while e executa
+ *  as operações apropriadas para cada instrução usando 
+ * um switch-case.
+*/
 
 void run(const Instruction* bytecode, int size) {
     int stack[MAX_STACK_SIZE];
@@ -123,6 +151,19 @@ void run(const Instruction* bytecode, int size) {
         }
     }
 }
+
+/**
+ * Main.  Ela verifica se o programa foi chamado 
+ * com o número correto de argumentos (um arquivo de entrada)
+ * e abre o arquivo em modo binário ("rb"). Em seguida,
+ * ela lê o conteúdo do arquivo binário para o ponteiro
+ * bytecode, aloca espaço na memória para o array bytecode 
+ * e preenche o array lendo o conteúdo do arquivo. Depois
+ * disso, ela chama a função run passando o bytecode e o 
+ * tamanho para iniciar a execução da máquina virtual.
+ * Finalmente, o espaço alocado para o bytecode é liberado 
+ * com free e o programa é encerrado com status de sucesso.
+*/
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
